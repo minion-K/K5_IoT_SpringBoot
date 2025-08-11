@@ -53,7 +53,7 @@ class BookStore1 {
 @Component
 // : 스프링 컨테이너가 해당 객체를 관리하도록 설정
 // >> 스프링 빈(Bean)
-// >>
+// >> 스프링 컨테이너에 의해 관리되는 재사용 가능한 소프트웨어 컴포넌트
 class Book2 {
     private String title;
 
@@ -67,7 +67,7 @@ class Book2 {
 }
 
 @Component
-class bookStore2 {
+class BookStore2 {
     private Book2  book;
 
 
@@ -75,7 +75,7 @@ class bookStore2 {
 //    - 개발자가 new 연산자 사용 없이, 스프링 컨테이너가 객체를 직접 만들어서 '주입'
 
     @Autowired // 스프링 컨테이너에게 해당 타입의 빈을 찾아 주입하는 어노테이션
-    public bookStore2(Book2 book) {
+    public BookStore2(Book2 book) {
         this.book = book;
     }
 
