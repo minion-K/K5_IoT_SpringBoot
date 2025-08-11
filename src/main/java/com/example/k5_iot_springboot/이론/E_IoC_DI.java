@@ -16,6 +16,8 @@ package com.example.k5_iot_springboot.이론;
 */
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 // 1. 전통적인 자바 프로그래밍 방식
@@ -89,10 +91,41 @@ class bookStore2 {
 // 2. 빈(Bean)
 // : 스프링 컨테이너가 관리하는 객체
 // - 등록 방식
-//      > 컴포넌트 스캔 기반 @Component
+//      > 컴포넌트 스캔 기반 @Component (클래스 단위 등록)
 //          + 특화 어노테이션 @Controller, @Service, @Repository 등
 //                : 내부에 @Component 포함
-//      > 자바 설정 기반 @Configuration 클래스 안에 @Bean 메서드로 수동 등록
+//      > 자바 설정 기반 @Configuration 클래스 안에 @Bean 메서드로 수동 등록 (메서드 단위 등록)
+
+// - 네이밍 규칙
+//      > 클래스명의 첫 클자를 소문자로 바꾼 이름이 기본 Bean의 이름
+//      EX) Book -> book, BookStore -> bookStore 등
+//          이름 설정 @Component("bookSpecial")
+
+@Configuration
+class ExampleConfig {
+    @Bean
+    public void ExampleBean() {
+        System.out.println("예시 빈 등록");
+    }
+}
+
+/*
+    === 의존성 주입 방식 (생성자, 필드, 세터) ===
+    
+    1) 생성자 주입 방식(권장)
+        - 불변 보장 (final 가능)
+        - 순환 참조 조기 감지
+        - 테스트 용이성
+        - 필수 의존성 보장(주입 없이는 인스턴스 생성 불가)
+        
+    2) 필드 주입 방식
+        - 테스트 어려움
+        - 순환 참조 숨김
+        - 불변 보장 불가
+        
+    3) 세터 주입 방식
+        - 불변성 약화, 객체가 불완전 상태로 생성될 가능성 존재
+*/
 
 public class E_IoC_DI {
 }
