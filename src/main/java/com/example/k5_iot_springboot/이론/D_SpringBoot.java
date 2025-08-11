@@ -38,7 +38,7 @@ package com.example.k5_iot_springboot.이론;
             : 스프링은 컨트롤러 스타일이 달라도 공통 방식으로 호출 할 수 있도록 어댑터가 중간에서 표준화
             (@Controller, @RestController 등)
     
-    4) 핸들러 어댑터가 >> 컨트롤러
+    4) 핸들러 어댑터 >> 컨트롤러
         : 컨트롤러가 요청 파라미터를 받아 비즈니스 로직 호출, 모델 데이터 생성, 뷰 이름(String) 등을 반환
         - @ResponseBody & @RestController 인 경우 뷰를 반환하지 않고 바디(JSON 등)로 바로 전달
             >> 뷰/뷰 리졸버 단계가 생략 가능
