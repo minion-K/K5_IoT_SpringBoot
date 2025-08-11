@@ -47,3 +47,6 @@ public class A_Test {
     @Column(name = "name", nullable = false)
     private String name;
 }
+
+//JPA (ORM, 객체와 RDBMS 연결) VS MyBatis(SQL Mapper, SQL 중심 접근)
+
