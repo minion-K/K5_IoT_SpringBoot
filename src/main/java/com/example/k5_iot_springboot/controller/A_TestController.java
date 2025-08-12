@@ -3,7 +3,6 @@ package com.example.k5_iot_springboot.controller;
 import com.example.k5_iot_springboot.entity.A_Test;
 import com.example.k5_iot_springboot.service.A_TestService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,6 +51,7 @@ public class A_TestController {
     @PutMapping("/{testId}")
     public A_Test updateTest(@PathVariable Long testId, @RequestBody A_Test test) {
         A_Test result = testService.updateTest(testId, test);
+        return result;
     }
 
     @DeleteMapping("/{testId}")
