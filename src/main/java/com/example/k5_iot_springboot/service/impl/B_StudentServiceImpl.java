@@ -39,6 +39,14 @@ public class B_StudentServiceImpl implements B_StudentService {
         return toDto(student);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<StudentResponseDto> filterStudentByName(String name) {
+        return studentRepository.findByNameContainingIgnoreCase(name)
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
 
 //    === 쓰기 계열 (POST, PUT, DELETE)은 기본 @Transactional
     @Override
@@ -90,7 +98,7 @@ public class B_StudentServiceImpl implements B_StudentService {
         studentRepository.delete(student);
     }
 
-//    === Entity >>> DTO 매핑 유틸 메서드 ===
+    //    === Entity >>> DTO 매핑 유틸 메서드 ===
     private StudentResponseDto toDto(B_Student student) {
 //        return new StudentResponseDto(
 //                student.getId(),

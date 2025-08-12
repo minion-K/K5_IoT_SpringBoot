@@ -17,4 +17,6 @@ public interface B_StudentService {
     StudentResponseDto updateStudent(Long id, StudentUpdateRequestDto requestDto);
 
     void deleteStudent(Long id);
+
+    List<StudentResponseDto> filterStudentByName(String name);
 }

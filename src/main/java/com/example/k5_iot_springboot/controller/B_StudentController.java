@@ -76,4 +76,16 @@ public class B_StudentController {
         studentService.deleteStudent(id);
         return ResponseEntity.noContent().build();
     }
+
+//    6) 학생 필터링 조회 (이름 검색)
+//    GET + "/filter?name=값"
+//    @RequestParam >> 변수명을 키값으로 사용
+    @GetMapping("/filter")
+    public ResponseEntity<List<StudentResponseDto>> filterStudentByName(@RequestParam String name) {
+        List<StudentResponseDto> result = studentService.filterStudentByName(name);
+
+        return ResponseEntity.ok(result);
+    }
+
+
 }
