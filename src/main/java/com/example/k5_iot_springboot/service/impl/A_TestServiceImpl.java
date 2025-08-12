@@ -32,10 +32,10 @@ public class A_TestServiceImpl implements A_TestService {
     @Override
     public A_Test getTestByTestId(Long testId) {
         Optional<A_Test> optionalTestEntity = testRepository.findById(testId);
-        optionalTestEntity.orElseThrow(() ->
+        A_Test test = optionalTestEntity.orElseThrow(() ->
                 new RuntimeException("해당 ID를 가진 데이터가 없습니다."));
 
-        return optionalTestEntity.get();
+        return test;
     }
 
     @Override
