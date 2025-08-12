@@ -19,5 +19,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface A_TestRepository extends JpaRepository<A_Test, Long> {
-
+//    기본 CRUD가 내장
 }
