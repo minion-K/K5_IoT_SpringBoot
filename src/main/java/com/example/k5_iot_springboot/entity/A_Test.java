@@ -42,7 +42,7 @@ public class A_Test {
 //              > updatable 옵션: 열이 수정을 허용할 지 여부 설정 (기본값: true)
 //              > unique 옵션: 해당 필드의 값이 유일해야 하는지 여부를 지정 (기본값: false)
 //          >> 각 옵션은 ,(콤마)로 구분하여 나열
-    private Long id;
+    private Long testId;
 
     @Column(name = "name", nullable = false)
     private String name;

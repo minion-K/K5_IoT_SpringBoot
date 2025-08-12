@@ -29,5 +29,5 @@ package com.example.k5_iot_springboot.이론;
     - DB와의 연결은 유지하면서 엔티티 객체들을 관리
 */
 
-public class I_ORM {
+public class H_ORM {
 }
