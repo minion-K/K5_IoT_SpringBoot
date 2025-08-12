@@ -37,8 +37,8 @@ public class B_StudentController {
 //        - 리다이렉트 할 페이지의 URL을 나타냄
 //        - 201 (Created), 3XX (redirection) 응답 상태와 주로 사용
         URI location = uriComponentsBuilder // 현재의 HTTP 요청의 정보를 바탕으로 설정
-                
-                .path("/{id}")// 현재 경로 + /{id} 
+
+                .path("/{id}")// 현재 경로 + /{id}
                 .buildAndExpand(created.getId())// 템플릿 변수 치환, 동적 데이터 처리
                 .toUri();
 
