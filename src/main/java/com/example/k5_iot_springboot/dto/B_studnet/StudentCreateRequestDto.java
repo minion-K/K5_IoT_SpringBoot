@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor // 필수 - JSON에서 객체 변환 시 기본 생성자 필요
 public class StudentCreateRequestDto {
     private String name;
-    private String emil;
+    private String email;
 }

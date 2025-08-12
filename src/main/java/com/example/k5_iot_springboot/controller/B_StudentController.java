@@ -1,16 +1,17 @@
 package com.example.k5_iot_springboot.controller;
 
+import com.example.k5_iot_springboot.dto.B_studnet.StudentCreateRequestDto;
+import com.example.k5_iot_springboot.dto.B_studnet.StudentResponseDto;
+import com.example.k5_iot_springboot.dto.B_studnet.StudentUpdateRequestDto;
 import com.example.k5_iot_springboot.entity.B_Student;
 import com.example.k5_iot_springboot.service.B_StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 // cf) RESTful API : REST API를 잘 따르는 아키텍처 스타일
 // cf) RequestMapping 
@@ -28,9 +29,9 @@ public class B_StudentController {
 //    - 성공 201 Created + Location 헤더(/student/{id} + 생성 데이터
 //    cf) 리소스 생성 성공은 201 Created가 표준
     @PostMapping
-    public B_Student createStudent(@RequestBody B_Student student
+    public ResponseEntity<StudentResponseDto> createStudent(@RequestBody StudentCreateRequestDto requestDto
             , UriComponentsBuilder uriComponentsBuilder) {
-        B_Student created = studentService.createStudent(student);
+        StudentResponseDto created = studentService.createStudent(requestDto);
 
 //        Location 헤더 설정
 //        : 서버의 응답이 다른 곳에 있음을 알려주고 해당 위치(URI)를 지정
@@ -45,5 +46,34 @@ public class B_StudentController {
         return ResponseEntity.created(location).body(created);
     }
 
+//    2) 전체 학생 목록 조회 (GET)
+    @GetMapping
+    public ResponseEntity<List<StudentResponseDto>> getAllStudents() {
+        List<StudentResponseDto> result = studentService.getAllStudents();
+        return ResponseEntity.ok(result);
+    }
 
+//    3) 특정 학생 조회(GET + /{id})
+    @GetMapping("/{id}")
+    public ResponseEntity<StudentResponseDto> getStudentById(@PathVariable Long id) {
+        StudentResponseDto result = studentService.getStudentById(id);
+        return ResponseEntity.ok(result);
+    }
+
+//    4) 특정 학생 수정(PUT + /{id})
+    @PutMapping("/{id}")
+    public ResponseEntity<StudentResponseDto> updateStudent(
+            @PathVariable Long id,
+            @RequestBody StudentUpdateRequestDto requestDto
+            ) {
+        StudentResponseDto updated = studentService.updateStudent(id, requestDto);
+        return ResponseEntity.ok(updated);
+    }
+
+//    5) 특정 학생 삭제(DELETE + /{id})
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteStudent(@PathVariable Long id) {
+        studentService.deleteStudent(id);
+        return ResponseEntity.noContent().build();
+    }
 }
