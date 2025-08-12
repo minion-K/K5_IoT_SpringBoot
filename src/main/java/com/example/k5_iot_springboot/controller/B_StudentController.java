@@ -3,7 +3,6 @@ package com.example.k5_iot_springboot.controller;
 import com.example.k5_iot_springboot.dto.B_studnet.StudentCreateRequestDto;
 import com.example.k5_iot_springboot.dto.B_studnet.StudentResponseDto;
 import com.example.k5_iot_springboot.dto.B_studnet.StudentUpdateRequestDto;
-import com.example.k5_iot_springboot.entity.B_Student;
 import com.example.k5_iot_springboot.service.B_StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
