@@ -47,7 +47,7 @@ public class C_BookServiceImpl implements C_BookService {
     public ResponseDto<BookResponseDto> getBookById(Long id) {
         try {
             C_Book book = bookRepository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("해당 ID의 책을 찾을 수 없습니다. " + "[ "+id+" ]"));
+                    .orElseThrow(() -> new IllegalArgumentException("해당 ID의 책을 찾을 수 없습니다. " + "[ " + id +" ]"));
 
             return ResponseDto.setSuccess("SUCCESS", toResponse(book));
 
@@ -60,7 +60,7 @@ public class C_BookServiceImpl implements C_BookService {
     public ResponseDto<BookResponseDto> updateBook(Long id, BookUpdateRequestDto dto) {
         try {
             C_Book book = bookRepository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("해당 ID의 책을 찾을 수 없습니다. " + "[ "+id+" ]"));
+                    .orElseThrow(() -> new IllegalArgumentException("해당 ID의 책을 찾을 수 없습니다. " + "[ " + id + " ]"));
 
             applyUpdates(book, dto); // 부분수정 = Content, Category 중 존재하는 요청 데이터만 수정 반영
 
