@@ -2,6 +2,7 @@ package com.example.k5_iot_springboot.service;
 
 import com.example.k5_iot_springboot.dto.C_Book.BookCreateRequestDto;
 import com.example.k5_iot_springboot.dto.C_Book.BookResponseDto;
+import com.example.k5_iot_springboot.dto.C_Book.BookUpdateRequestDto;
 import com.example.k5_iot_springboot.dto.ResponseDto;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface C_BookService {
 
     ResponseDto<BookResponseDto> getBookById(Long id);
 
-    ResponseDto<BookResponseDto> updateBook(Long id);
+    ResponseDto<BookResponseDto> updateBook(Long id, BookUpdateRequestDto dto);
 
-    ResponseDto<BookResponseDto> deleteBook(Long id);
+    ResponseDto<Void> deleteBook(Long id);
 }

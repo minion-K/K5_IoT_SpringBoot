@@ -45,14 +45,14 @@ public class C_BookController {
             @PathVariable Long id,
             @RequestBody BookUpdateRequestDto dto
             ) {
-        ResponseDto<BookResponseDto> result = bookService.updateBook(id);
+        ResponseDto<BookResponseDto> result = bookService.updateBook(id, dto);
 
         return ResponseEntity.ok(result);
     }
 //    5) DELETE - 책 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseDto<BookResponseDto>> deleteBook(@PathVariable Long id) {
-        ResponseDto<BookResponseDto> result = bookService.deleteBook(id);
-        return ResponseEntity.ok(result);
+    public ResponseEntity<ResponseDto<Void>> deleteBook(@PathVariable Long id) {
+        ResponseDto<Void> result = bookService.deleteBook(id);
+        return ResponseEntity.noContent().build();
     }
 }
