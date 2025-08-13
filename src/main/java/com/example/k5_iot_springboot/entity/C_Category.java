@@ -1,8 +1,11 @@
 package com.example.k5_iot_springboot.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.Arrays;
 
 @AllArgsConstructor
 @Getter
@@ -33,6 +36,27 @@ public enum C_Category {
         : JSON 요청 값을 Enum으로 변환할 때, Enum 이름(name)과 DB 값(dbValue) 모두 인식
         - 대소문자 구분 X, 값이 없거나 잘못된 경우 예외 발생
     */
-    
+    @JsonCreator
+    public static C_Category fromJson(String value) {
+        if(value == null) return null;
+        String v = value.trim();
 
+        return Arrays.stream(values())
+//                Enum 데이터를 스트림으로 변경 (데이터 순회 필터링)
+                .filter(c -> c.name().equalsIgnoreCase(v) || c.dbValue.equalsIgnoreCase(v))
+                .findFirst() // Optional 반환
+                .orElseThrow(() -> new IllegalArgumentException("Invalid category: " + value));
+
+    }
+    /*
+        3) DB에서 읽어온 문자열 값을 Enum으로 변환
+        : DB에 저장된 값과 정확히 일치하는 Enum을 반환 (일치하는 값 없으면 에외 발생)
+    */
+    public static C_Category fromDbValue(String dbValue) {
+        if(dbValue == null) return null;
+        return Arrays.stream(values())
+                .filter(c -> c.dbValue.equalsIgnoreCase(dbValue))
+                .findFirst()
+                .orElseThrow(()-> new IllegalArgumentException("Unknown category DB: " + dbValue));
+    }
 }
