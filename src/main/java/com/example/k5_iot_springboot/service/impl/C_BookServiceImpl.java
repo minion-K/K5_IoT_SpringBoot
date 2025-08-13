@@ -5,6 +5,7 @@ import com.example.k5_iot_springboot.dto.C_Book.BookResponseDto;
 import com.example.k5_iot_springboot.dto.C_Book.BookUpdateRequestDto;
 import com.example.k5_iot_springboot.dto.ResponseDto;
 import com.example.k5_iot_springboot.entity.C_Book;
+import com.example.k5_iot_springboot.entity.C_Category;
 import com.example.k5_iot_springboot.repository.C_BookRepository;
 import com.example.k5_iot_springboot.service.C_BookService;
 import lombok.RequiredArgsConstructor;
@@ -86,7 +87,49 @@ public class C_BookServiceImpl implements C_BookService {
         }
     }
 
-//    유틸 메서드 (Entity -> ResponseDto)
+    @Override
+    public ResponseDto<List<BookResponseDto>> getBooksByTitleContaining(String keyword) {
+        List<BookResponseDto> data = null;
+        if(keyword == null || keyword.isEmpty()) {
+            ResponseDto.setFail("검색 키워드를 입력해주세요");
+        }
+
+        List<C_Book> found = bookRepository.findByTitleContaining(keyword);
+
+        if(found.isEmpty()) {
+            return ResponseDto.setFail("검색 결과가 없습니다.");
+        }
+
+        data = found.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+
+        return ResponseDto.setSuccess("SUCCESS", data);
+    }
+
+    @Override
+    public ResponseDto<List<BookResponseDto>> getBooksByCategory(C_Category category) {
+        List<BookResponseDto> data = null;
+
+        if(category == null) {
+            return ResponseDto.setFail("카테고리를 선택해주세요");
+        }
+        List<C_Book> found = bookRepository.findByCategory(category);
+
+        if(found.isEmpty()) {
+            return ResponseDto.setFail("검색 결과가 없습니다.");
+        }
+
+        data = found.stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+
+        return ResponseDto.setSuccess("SUCCESS", data);
+    }
+
+
+
+    //    유틸 메서드 (Entity -> ResponseDto)
     private BookResponseDto toResponse(C_Book entity) {
         BookResponseDto dto = new BookResponseDto(
                 entity.getWriter(),
