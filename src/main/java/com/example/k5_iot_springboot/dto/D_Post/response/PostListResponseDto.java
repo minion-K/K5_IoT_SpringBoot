@@ -25,6 +25,6 @@ public record PostListResponseDto(
     public PostListResponseDto summarize(int maxLen) {
         String summarized = content == null ? null :
                 (content.length() <= maxLen ? content : content.substring(0, maxLen) + "...");
-        return new PostListResponseDto(id, title, content, summarized);
+        return new PostListResponseDto(id, title, summarized, author);
     }
 }

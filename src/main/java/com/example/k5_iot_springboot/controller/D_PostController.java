@@ -36,7 +36,7 @@ public class D_PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 //    2) 게시글 단건 조회 (댓글 포함)
-    @GetMapping(APIMappingPattern.Posts.BY_ID)
+    @GetMapping(APIMappingPattern.Posts.ID_ONLY)
     public ResponseEntity<ResponseDto<PostDetailResponseDto>> getPostById(
             @PathVariable Long postId
     ) {
@@ -52,7 +52,7 @@ public class D_PostController {
     }
     
 //    4) 게시글 수정(완전 교체 - PUT)
-    @PutMapping(APIMappingPattern.Posts.BY_ID)
+    @PutMapping(APIMappingPattern.Posts.ID_ONLY)
     public ResponseEntity<ResponseDto<PostDetailResponseDto>> updatePost(
             @PathVariable Long postId,
             @Valid @RequestBody PostUpdateRequestDto dto
@@ -64,9 +64,23 @@ public class D_PostController {
 
 //    5) 게시글 삭제
 //    : 규격 통일은 휘안 200 OK + ResponseDto<Void> 반환
-    @DeleteMapping(APIMappingPattern.Posts.BY_ID)
+    @DeleteMapping(APIMappingPattern.Posts.ID_ONLY)
     public ResponseEntity<ResponseDto<Void>> deletePost(@PathVariable Long postId) {
         ResponseDto<Void> response = postService.deletePost(postId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+    
+//    ========================================================================== //
+//    6) 특정 작성자의 모든 게시글 조회
+    @GetMapping("/author/{author}")
+    public ResponseEntity<ResponseDto<List<PostListResponseDto>>> getPostsByAuthor(
+            @PathVariable String author
+    ) {
+        ResponseDto<List<PostListResponseDto>> response = postService.getPostsByAuthor(author);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+//    7) 특정 키워드로 제목 검색
+    
+//    8) 댓글이 가장 많은 상위 5개 게시글 조회
 }

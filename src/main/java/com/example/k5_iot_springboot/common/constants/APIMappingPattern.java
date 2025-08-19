@@ -6,7 +6,7 @@ package com.example.k5_iot_springboot.common.constants;
 public class APIMappingPattern {
 //    === 공통 베이스 / 버전 ===
     public static final String API = "/api";
-    public static final String V1 = "v1";
+    public static final String V1 = "/v1";
     public static final String BASE = API + V1;
 
 //    == 1. 책(C_Book) ==
@@ -22,6 +22,8 @@ public class APIMappingPattern {
         private Posts() {}
 
         public static final String ROOT = BASE + "/posts";
+        public static final String ID_ONLY = "/{postId}";
+
         public static final String BY_ID = ROOT + "/{postId}";
     }
 //   == 3. 댓글(D_Comment)
@@ -40,7 +42,8 @@ public class APIMappingPattern {
         private Comments() {}
 
         public static final String ROOT = Posts.BY_ID + "/comments";
+        public static final String ID_ONLY = "/{commentId}";
+
         public static final String BY_ID = ROOT + "/{commentId}";
     }
-
 }

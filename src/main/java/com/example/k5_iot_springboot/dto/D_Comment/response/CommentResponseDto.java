@@ -10,7 +10,7 @@ public record CommentResponseDto(
         Long id,
         Long postId,
         String content,
-        String Commenter
+        String commenter
 ) {
     public static CommentResponseDto from(D_Comment comment) {
         if(comment == null) return null;
