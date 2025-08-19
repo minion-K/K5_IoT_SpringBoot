@@ -29,7 +29,7 @@ public class D_Post {
 
     @Comment("게시글 내용")
     @Lob // 대용량 텍스트 저장 - RDBMS 에서 자동으로 TEXT(CLOB)으로 매핑
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "longtext")
     private String content;
 
     @Comment("작성자 표시명 또는 ID")
