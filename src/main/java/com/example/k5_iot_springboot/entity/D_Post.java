@@ -60,6 +60,8 @@ public class D_Post {
 //    cf) 프록시(중개자)
 
     //    === 생성/수정 메서드 ===
+    // : 엔티티는 @Setter 제거
+    // - 의도된 변경 메서드만 공개
     private D_Post(String title, String content, String author) {
         this.title = title;
         this.content = content;
