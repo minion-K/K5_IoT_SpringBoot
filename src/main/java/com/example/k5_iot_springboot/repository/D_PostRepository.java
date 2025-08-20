@@ -161,7 +161,7 @@ public interface D_PostRepository extends JpaRepository<D_Post, Long> {
             p.id as postId,
             p.title as title,
             p.author as Author,
-            p.count(c.id) as commentCount
+            count(c.id) as commentCount
         FROM
             posts p
             LEFT JOIN comments c
