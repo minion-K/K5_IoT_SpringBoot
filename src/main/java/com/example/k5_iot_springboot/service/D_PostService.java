@@ -27,4 +27,6 @@ public interface D_PostService {
     ResponseDto<List<PostListResponseDto>> searchPostsByTitle(@NotBlank(message = "검색어를 입력해주세요") String keyword);
 
     ResponseDto<List<PostWithCommentCountResponseDto>> getTop5PostsByComments();
+
+    ResponseDto<List<PostListResponseDto>> searchPostsByCommentKeyword(@NotBlank(message = "검색어를 입력해주세요") String keyword);
 }

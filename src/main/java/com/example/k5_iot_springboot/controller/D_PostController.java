@@ -96,4 +96,17 @@ public class D_PostController {
         ResponseDto<List<PostWithCommentCountResponseDto>> response = postService.getTop5PostsByComments();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+//    9) 특정 키워드를 포함하는 "댓글"이 달린 게시글 조회
+//    요청값: 특정 키워드(검색값) - String
+//      >> @RequestParam
+//    응답값: 해당 키워드가 포함된 게시글들 - List<PostListResponseDto>
+    @GetMapping("/search-comment")
+//    ResponseEntity(body) >> ResponseDto(data) >> List<PostListResponseDto>
+    public ResponseEntity<ResponseDto<List<PostListResponseDto>>> searchPostsByCommentKeyword(
+            @RequestParam("keyword") @NotBlank(message = "검색어를 입력해주세요") String keyword
+    ) {
+        ResponseDto<List<PostListResponseDto>> response = postService.searchPostsByCommentKeyword(keyword);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+//    10) 특정 작성자의 게시글 중, 댓글 수가 minCount 이상인 게시글 조회
 }

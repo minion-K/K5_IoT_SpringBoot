@@ -125,6 +125,31 @@ public class D_PostServiceImpl implements D_PostService {
         return ResponseDto.setSuccess("SUCCESS", result);
     }
 
+    @Override
+    public ResponseDto<List<PostListResponseDto>> searchPostsByCommentKeyword(String keyword) {
+//        1) 입력값 정제/검증
+        String clean = (keyword == null) ? "" : keyword.trim();
+
+        if(clean.isEmpty()) {
+            throw new IllegalArgumentException("검색어를 입력해주세요");
+        }
+
+        if(clean.length() > 100) {
+            throw new IllegalArgumentException("검색어는 100자 이하여야 합니다.");
+        }
+
+        var rows = postRepository.findByCommentKeyword(clean);
+
+        List<PostListResponseDto> result = rows.stream()
+                .map(PostListResponseDto::from)
+                .toList();
+
+        return ResponseDto.setSuccess("SUCCESS", result);
+    }
+
+
+
+
     //    === 내부 유틸 메서드 ===
     private Long requirePositiveId(Long id) {
         if(id == null || id <= 0) throw new IllegalArgumentException("ID는 반드시 양수여야 합니다.");
