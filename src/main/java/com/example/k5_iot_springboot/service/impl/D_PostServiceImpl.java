@@ -11,6 +11,7 @@ import com.example.k5_iot_springboot.repository.D_PostRepository;
 import com.example.k5_iot_springboot.service.D_PostService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -146,6 +147,25 @@ public class D_PostServiceImpl implements D_PostService {
 
         return ResponseDto.setSuccess("SUCCESS", result);
     }
+
+//    특정 작성자의 게시글 중, 댓글 수가 minCount 이상인 게시글 조회
+    @Override
+    public ResponseDto<List<PostWithCommentCountResponseDto>> getAuthorPostsWithMinComments(String author, int minCount) {
+//        입력값 검증
+        String clean = requireNonBlank(author, "author");
+        if(minCount < 0) throw new IllegalArgumentException("minCount는 0 이상어야 합니다.");
+//        리포지토리 호출
+        var rows = postRepository.findAuthorPostsWithMinCount(author, 7);
+
+        List<PostWithCommentCountResponseDto> result = rows.stream()
+                .map(PostWithCommentCountResponseDto::from)
+                .toList();
+        return ResponseDto.setSuccess("SUCCESS",result);
+    }
+
+
+
+
 
 
 
