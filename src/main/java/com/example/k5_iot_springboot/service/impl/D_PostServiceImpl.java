@@ -152,7 +152,7 @@ public class D_PostServiceImpl implements D_PostService {
     @Override
     public ResponseDto<List<PostWithCommentCountResponseDto>> getAuthorPostsWithMinComments(String author, int minCount) {
 //        입력값 검증
-        String clean = requireNonBlank(author, "author");
+        String clean = requireNonBlank(author, "author").trim();
         if(minCount < 0) throw new IllegalArgumentException("minCount는 0 이상어야 합니다.");
 //        리포지토리 호출
         var rows = postRepository.findAuthorPostsWithMinCount(author, 7);
