@@ -155,7 +155,7 @@ public class D_PostServiceImpl implements D_PostService {
         String clean = requireNonBlank(author, "author").trim();
         if(minCount < 0) throw new IllegalArgumentException("minCount는 0 이상어야 합니다.");
 //        리포지토리 호출
-        var rows = postRepository.findAuthorPostsWithMinCount(author, 7);
+        var rows = postRepository.findAuthorPostsWithMinCount(clean, 7);
 
         List<PostWithCommentCountResponseDto> result = rows.stream()
                 .map(PostWithCommentCountResponseDto::from)
