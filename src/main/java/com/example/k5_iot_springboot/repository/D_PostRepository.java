@@ -54,4 +54,22 @@ public interface D_PostRepository extends JpaRepository<D_Post, Long> {
         order by p.id desc
     """)
     List<D_Post> findAllOrderByIdDesc();
+
+//    =================== 필터링 & 검색 =================== //
+//    1. 쿼리 메서드(Query Method)
+//    : Spring Data JPA가 메서드명을 파싱하여 JPQL을 자동 생성
+
+//    EX1) findByAuthorOrderByIdDesc
+//      >> (where author) = ? + (order by id desc)
+//    EX2) findByTitleLikeIgnoreCaseOrderByIdDesc
+//      >> (where lower(title) like lower(?)) + (order by id desc)
+    @Query("""
+    
+    """)
+    List<D_Post> findByAuthorOrderByIdDesc(String author);
+    
+    @Query("""
+    
+    """)
+    List<D_Post> findByTitleLikeIgnoreCaseOrderByIdDesc(String title);
 }

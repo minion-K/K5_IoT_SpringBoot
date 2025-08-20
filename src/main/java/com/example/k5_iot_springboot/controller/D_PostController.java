@@ -5,9 +5,11 @@ import com.example.k5_iot_springboot.dto.D_Post.request.PostCreateRequestDto;
 import com.example.k5_iot_springboot.dto.D_Post.request.PostUpdateRequestDto;
 import com.example.k5_iot_springboot.dto.D_Post.response.PostDetailResponseDto;
 import com.example.k5_iot_springboot.dto.D_Post.response.PostListResponseDto;
+import com.example.k5_iot_springboot.dto.D_Post.response.PostWithCommentCountResponseDto;
 import com.example.k5_iot_springboot.dto.ResponseDto;
 import com.example.k5_iot_springboot.service.D_PostService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +20,7 @@ import java.rmi.server.RemoteRef;
 import java.util.List;
 
 @RestController
-@RequestMapping(APIMappingPattern.Posts.ROOT)
+@RequestMapping(APIMappingPattern.Posts.ROOT) // "/api/v1/posts"
 @RequiredArgsConstructor
 @Validated // 메서드 파라미터 검증 활성화 
 public class D_PostController {
@@ -72,15 +74,26 @@ public class D_PostController {
     
 //    ========================================================================== //
 //    6) 특정 작성자의 모든 게시글 조회
-    @GetMapping("/author/{author}")
+    @GetMapping(APIMappingPattern.Posts.BY_AUTHOR)
     public ResponseEntity<ResponseDto<List<PostListResponseDto>>> getPostsByAuthor(
-            @PathVariable String author
+            @PathVariable @NotBlank(message = "작성자는 비워둘 수 없습니다.") String author
     ) {
         ResponseDto<List<PostListResponseDto>> response = postService.getPostsByAuthor(author);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 //    7) 특정 키워드로 제목 검색
-    
+    @GetMapping(APIMappingPattern.Posts.SEARCH_BY_TITLE) // "api/v1/posts/search?keyword="
+    public ResponseEntity<ResponseDto<List<PostListResponseDto>>> searchPostsByTitle(
+            @RequestParam("keyword") @NotBlank(message = "검색어를 입력해주세요") String keyword) {
+        ResponseDto<List<PostListResponseDto>> response = postService.searchPostsByTitle(keyword);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 //    8) 댓글이 가장 많은 상위 5개 게시글 조회
+    @GetMapping(APIMappingPattern.Posts.TOP_BY_COMMENTS)
+    public ResponseEntity<ResponseDto<List<PostWithCommentCountResponseDto>>> getTop5PostsByComments() {
+        ResponseDto<List<PostWithCommentCountResponseDto>> response = postService.getTop5PostsByComments();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 }

@@ -4,6 +4,7 @@ import com.example.k5_iot_springboot.dto.D_Post.request.PostCreateRequestDto;
 import com.example.k5_iot_springboot.dto.D_Post.request.PostUpdateRequestDto;
 import com.example.k5_iot_springboot.dto.D_Post.response.PostDetailResponseDto;
 import com.example.k5_iot_springboot.dto.D_Post.response.PostListResponseDto;
+import com.example.k5_iot_springboot.dto.D_Post.response.PostWithCommentCountResponseDto;
 import com.example.k5_iot_springboot.dto.ResponseDto;
 import com.example.k5_iot_springboot.entity.D_Post;
 import com.example.k5_iot_springboot.repository.D_PostRepository;
@@ -88,8 +89,31 @@ public class D_PostServiceImpl implements D_PostService {
         return ResponseDto.setSuccess("SUCCESS", null);
     }
 
+//    특정 작성자의 모든 게시글
     @Override
     public ResponseDto<List<PostListResponseDto>> getPostsByAuthor(String author) {
+        List<D_Post> posts = postRepository.findByAuthorOrderByIdDesc(author);
+        List<PostListResponseDto> result = posts.stream()
+                .map(PostListResponseDto::from)
+                .toList();
+
+        return ResponseDto.setSuccess("SUCCESS",result);
+    }
+    
+//    제목 키워드 검색
+    @Override
+    public ResponseDto<List<PostListResponseDto>> searchPostsByTitle(String keyword) {
+        List<D_Post> posts = postRepository.findByTitleLikeIgnoreCaseOrderByIdDesc(keyword);
+        List<PostListResponseDto> result = posts.stream()
+                .map(PostListResponseDto::from)
+                .toList();
+
+        return ResponseDto.setSuccess("SUCCESS",result);
+    }
+
+//    댓글이 가장 많은 상위 5개
+    @Override
+    public ResponseDto<List<PostWithCommentCountResponseDto>> getTop5PostsByComments() {
         return null;
     }
 
