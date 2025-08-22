@@ -48,14 +48,18 @@ public class E_BoardController {
 //            size: 최대 100 제한, 과도한 요청 금지
             @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size,
 //            sort: 여러 개 허용 - EX) sort=createAt,desc&sort=title,asc
-            @RequestParam(required = false) String [] sort
+            @RequestParam(required = false, value = "sort") List<String> sort
+
     ) {
-        ResponseDto<BoardResponseDto.PageResponse> response = boardService.getBoardsPage(page, size, sort);
+        String[] sortParams = (sort != null && !sort.isEmpty()) ? sort.toArray(new String[0]) : null;
+
+        ResponseDto<BoardResponseDto.PageResponse> response = boardService.getBoardsPage(page, size, sortParams);
+
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 
-//    2-1) 게시글 조회 (페이지네이션 Cursor 조회)
+//    2-2) 게시글 조회 (페이지네이션 Cursor 조회)
     @GetMapping("/cursor")
     public ResponseEntity<ResponseDto<BoardResponseDto.SliceResponse>> getBoardsByCursor(
 //            처음 요청이면 null >> 가장 최신부터 시작을 의미
