@@ -46,7 +46,7 @@ public class E_BoardController {
 //            page: 0부터 시작, 필요 시 1부터 시작하는 정책도 가능
             @RequestParam(defaultValue = "0") @Min(0) int page,
 //            size: 최대 100 제한, 과도한 요청 금지
-            @RequestParam(defaultValue = "10") @Min(1) int size,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size,
 //            sort: 여러 개 허용 - EX) sort=createAt,desc&sort=title,asc
             @RequestParam(required = false) String [] sort
     ) {

@@ -17,7 +17,7 @@ public interface E_BoardService {
 
     ResponseDto<BoardResponseDto.DetailResponse> updateBoard(Long boardId, BoardRequestDto.@Valid UpdateRequest request);
 
-    ResponseDto<BoardResponseDto.PageResponse> getBoardsPage(@Min(0) int page, @Min(1) int size, String[] sort);
+    ResponseDto<BoardResponseDto.PageResponse> getBoardsPage(@Min(0) int page, @Min(1) @Max(100) int size, String[] sort);
 
     ResponseDto<BoardResponseDto.SliceResponse> getBoardByCursor(Long cursorId, @Min(1) @Max(100) int size);
 }
