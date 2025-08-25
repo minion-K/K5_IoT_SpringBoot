@@ -69,6 +69,59 @@ package com.example.k5_iot_springboot.이론;
         
     11. CSRF/CORS
         - 웹 보안 규칙(폼 위조/다른 도메인 호출 규칙)
+        
+    === Security 요청 처리 흐름 ===
+    [ 브라우저 ] -> [ Security Filter Chain ] -> [ 인증 필요 ] -> [ 인증 시도 ] 
+    
+    +) 인증 성공: SecurityConText에 저장 -> [ Controller ]
+       인증 실패: 401(Unauthorized, 로그인 X) / 403(Forbidden, 권한 X)
+       
+    >> 모든 요청을 필터 체인을 통과
+    >> 인증이 필요한 URL이면 로그인 정보 확인 + 성공 시 SecurityContext에 사용자/권한을 저장
+
+    === Spring Security 전체 처리 절차 ===
+    1) HTTP 요청
+        : 사용자가 브라우저/앱에서 요청(예: /login)을 보냄
+            +) 데이터나 인증 정보(JWT 토큰)가 포함되어 있을 수도 있고, 없을 수도 있음
+    2) SecurityFilterChain - 검문소 라인
+        : 모든 요청(인증 정보 여부 상관 X)
+        - 로그인 요청인지(UsernamePasswordAuthenticationFilter)
+        - JWT 토큰이 있는지(JWTAuthenticationFilter, 커스텀 Filter에 전달)
+        - 보호된 URL인지 확인
+        
+    3) AuthenticationManager/Provider - 신분 확인
+        : 로그인 시도(/login)가 들어오면, 필터가 아이디/비밀번호를 요청해서 꺼냄
+            >> AuthenticationManager에 전달
+                (UsernamePasswordAuthenticationToken - 인증용 객체)
+            >> 여러 AuthenticationProvider에게 일을 시킴
+                (Manager가 Provider 에게)
+                - 해당 아이디/비밀번호 일치 확인
+                - DB 기반 로그인, 소셜 로그인, JWT 검증 등 다양한 Provider가 존재
+                
+    4) UserDetailsService - 사용자 찾기
+        : Provider가 아이디를 받으면 UserDetailsService를 호출
+            >> DB에서 해당 유저 정보를 찾음
+            >> 찾은 결과를 UserDetails 객체로 변환
+            
+    5) PasswordEncoder - 비밀번호 검증
+        : UserDetailsService에서 가져온 비밀번호는 암호화(BCrypt 해시) 되어 있음
+        - 사용자가 입력한 비밀번호와 DB 해시값을 Encoder가 비교
+            >> 일치하면 인증 성공, 틀리면 실패
+
+    6) SecurityContext/SecurityContextHolder - 현재 로그인 정보 저장소
+        : 인증 성공 시 스피링 시큐리티는 SecurityContext 안에 로그인된 유저 정보 저장
+            >> SecurityContextHolder에 보관, 같은 요청 시 언제든지 꺼낼 수 있음
+            >> 서비스/컨트롤러에서 Authentication 타입의 매개변수로 로그인 사용자 정보 접근 가능
+            
+    7) Authorities (권한) - 어디까지 접근할 수 있는지 확인
+        : UserDetails 안에 유저가 가진 권한(ROLE) 정보 저장
+        - Filter Chain은 요청된 URL과 권한을 비교
+            >> 맞으면 통과, 아니면 막힘
+
+    8) EntryPoint / AccessDeniedHandler - 실패 처리
+        : 만약 인증이 안됐거나(로그인 X), 권한이 부족하면
+        - AuthenticationEntryPoint (로그인 필요): 401 Unauthorized
+        - AccessDeniedHandler (권한 없음): 403 Forbidden
 */
 public class S_Security {
 }
