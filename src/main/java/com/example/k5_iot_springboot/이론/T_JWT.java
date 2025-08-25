@@ -23,7 +23,7 @@ package com.example.k5_iot_springboot.이론;
         1) 사용자가 로그인 시 서버는 JWT 발급
         2) 사용자가 서버에 요청을 보낼 때 "HTTP 요청 헤더(Authorization)에 JWT 포함
            "Authorization: Bearer <JWT 토근값>
-        3) 서버는 전달받은 JWT를 검즈하여 요청 사용자의 인증 여부 판단
+        3) 서버는 전달받은 JWT를 검증하여 요청 사용자의 인증 여부 판단
         
     cf) Bearer Token
         : 소지자(Bearer)
