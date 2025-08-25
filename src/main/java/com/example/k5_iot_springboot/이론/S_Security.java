@@ -44,7 +44,7 @@ package com.example.k5_iot_springboot.이론;
             >> 스프링 시큐리티는 주로 BCrypt 사용(매번 다른 해시 결과로 만들어짐 - 안전성 향상)
 
     4. Principal (주요한, 핵심의)
-        - "인증된" 사용자 정보 (아디디, 이메일 등)
+        - "인증된" 사용자 정보 (아이디, 이메일 등)
 
     5. Authority(권한), ROLE(역할)
         - 역할에 따라 권한이 달라짐
@@ -76,7 +76,7 @@ package com.example.k5_iot_springboot.이론;
     +) 인증 성공: SecurityConText에 저장 -> [ Controller ]
        인증 실패: 401(Unauthorized, 로그인 X) / 403(Forbidden, 권한 X)
        
-    >> 모든 요청을 필터 체인을 통과
+    >> 모든 요청은 필터 체인을 통과
     >> 인증이 필요한 URL이면 로그인 정보 확인 + 성공 시 SecurityContext에 사용자/권한을 저장
 
     === Spring Security 전체 처리 절차 ===
@@ -90,7 +90,7 @@ package com.example.k5_iot_springboot.이론;
         - 보호된 URL인지 확인
         
     3) AuthenticationManager/Provider - 신분 확인
-        : 로그인 시도(/login)가 들어오면, 필터가 아이디/비밀번호를 요청해서 꺼냄
+        : 로그인 시도(/login)가 들어오면, 필터가 아이디/비밀번호를 요청에서 꺼냄
             >> AuthenticationManager에 전달
                 (UsernamePasswordAuthenticationToken - 인증용 객체)
             >> 여러 AuthenticationProvider에게 일을 시킴
@@ -109,7 +109,7 @@ package com.example.k5_iot_springboot.이론;
             >> 일치하면 인증 성공, 틀리면 실패
 
     6) SecurityContext/SecurityContextHolder - 현재 로그인 정보 저장소
-        : 인증 성공 시 스피링 시큐리티는 SecurityContext 안에 로그인된 유저 정보 저장
+        : 인증 성공 시 스프링 시큐리티는 SecurityContext 안에 로그인된 유저 정보 저장
             >> SecurityContextHolder에 보관, 같은 요청 시 언제든지 꺼낼 수 있음
             >> 서비스/컨트롤러에서 Authentication 타입의 매개변수로 로그인 사용자 정보 접근 가능
             
