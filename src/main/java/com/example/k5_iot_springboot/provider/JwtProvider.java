@@ -31,7 +31,7 @@ import java.util.Set;
 // Bean(메서드 레벨 선언) - 반환되는 객체를 개발자 수동으로 빈 등록
 public class JwtProvider {
 
-    private static final String BEARER_PREFIX = "Bearer "; // removeBearer에서 사용
+    public static final String BEARER_PREFIX = "Bearer "; // removeBearer에서 사용
 //    환경 변수에 지정한 비밀키와 만료 시간 변수 선언
     private final SecretKey key;
     private final int jwtExpirationMs;
@@ -87,7 +87,7 @@ public class JwtProvider {
      * ============== */
 
     /* HTTP Authorization 헤더에서 "Bearer" 제거 */
-    public String removeBearer(String bearerToken) {
+    public static String removeBearer(String bearerToken) {
         if (bearerToken == null || !bearerToken.startsWith(BEARER_PREFIX)) {
             throw new IllegalArgumentException("Authorization 형식이 올바르지 않습니다.");
         }
@@ -145,10 +145,10 @@ public class JwtProvider {
     @SuppressWarnings("unchecked") // 제네릭 캐스팅 경고 억제 (런타임 타입 확인으로 보완)
     public Set<String> getRolesFromJwt(String tokenWithoutBearer) {
         Object raw = getClaims(tokenWithoutBearer).get("roles");
-        if(raw == null) return Set.of();
+        if(raw == null) return Set.of(); // 권한 없음
 
         if(raw instanceof List<?> list) {
-            Set<String> result = new HashSet<>();
+            Set<String> result = new HashSet<>(); // 중복 제거 목적
             for(Object o: list) if(o != null) result.add(o.toString());
             return result;
         }
@@ -160,5 +160,11 @@ public class JwtProvider {
         }
 
         return Set.of(raw.toString());
+    }
+    
+    /* 남은 만료 시간(ms)가 음수면 이미 만료 */
+    public long getRemainingMillis(String tokenWithoutBearere) {
+        Claims c = parseClaimsInternal(tokenWithoutBearere, true);
+        return c.getExpiration().getTime() - System.currentTimeMillis();
     }
 }
