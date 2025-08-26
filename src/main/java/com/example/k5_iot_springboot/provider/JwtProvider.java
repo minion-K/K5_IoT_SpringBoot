@@ -146,7 +146,7 @@ public class JwtProvider {
 //            토큰이 만료된 경우 발생하는 JJWT 전용 예외 처리
 //            : 만료시간이 지난 토큰에도(예외 안에도) Claims 정보가 들어있음
             if(allowClockSkewOnExpiry && clockSkewSeconds > 0 && ex.getClaims() != null) {
-//                호출부가 "만료 직우 오차 허용"을 활성화 했고 설정값이 0보다 큰지 확인
+//                호출부가 "만료 직후 오차 허용"을 활성화 했고 설정값이 0보다 큰지 확인
                 Date exp = ex.getClaims().getExpiration(); // 만료 시각(exp) 추출
                 if(exp != null) {
                     long skewMs = clockSkewSeconds * 1000L; // 허용 오차(초)를 밀리초로 변환
