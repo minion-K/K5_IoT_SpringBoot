@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /*
     === JwtProvider ===
@@ -49,6 +46,9 @@ public class JwtProvider {
 //    === 상수 & 필드 선언 ===
     /** Authorization의 접두사 */
     public static final String BEARER_PREFIX = "Bearer "; // removeBearer에서 사용
+
+    /** 커스텀 클레임 키 */
+    public static final String CLAIM_ROLES = "roles";
     
     /** 서명용 비밀키, 액세스 토큰 만료시간(ms), 만료 직후 허용할 시계 오차(s) */
 //    환경 변수에 지정한 비밀키와 만료 시간 변수 선언
@@ -95,16 +95,22 @@ public class JwtProvider {
      액세스 토큰 생성
      @param username - sub(subject)에 저장할 사용자 식별자
      @param roles    - 권한목록(중복 제거용 Set 사용) - JSON 배열로 직렬화
-     
+
      subject=sub(username), roles는 커스텀 클레임 */
     public String generateJwtToken(String username, Set<String> roles) {
         long now = System.currentTimeMillis();
+        Date iat = new Date(now);
+        Date exp = new Date(now + jwtExpirationMs);
+
+//        List로 변환하여 직렬화 시 타입 안정성 확보
+        List<String> roleList = (roles == null) ? List.of() : new ArrayList<>(roles);
+
         return Jwts.builder()
 //                표준 클레임 sub(Subject)에 사용자 아이디(또는 고유 식별자) 설정
                 .setSubject(username)
-                .claim("roles", roles) // 커스텀 클레임 키에 권한 목록 저장
-                .setIssuedAt(new Date(now)) // 표준 클레임에 현재 시간 설정(발행 시간)
-                .setExpiration(new Date(now + jwtExpirationMs)) // 현재 시간에 만료 시간을 더한 설정(만료 시간)
+                .claim(CLAIM_ROLES, roleList) // 커스텀 클레임 키에 권한 목록 저장
+                .setIssuedAt(iat) // 표준 클레임에 현재 시간 설정(발행 시간)
+                .setExpiration(exp) // 현재 시간에 만료 시간을 더한 설정(만료 시간)
 //                .signWith(key, SignatureAlgorithm.ES256)
                 .signWith(key) // 서명 키로 서명 (자동 HS256 선택) - 비밀키를 서명
                 .compact(); // 빌더를 압축하여 최종 JWT 문자열 생성
@@ -119,7 +125,7 @@ public class JwtProvider {
         if (bearerToken == null || !bearerToken.startsWith(BEARER_PREFIX)) {
             throw new IllegalArgumentException("Authorization 형식이 올바르지 않습니다.");
         }
-//        인자가 한 개인 경우: index 0부터 인자값 "전"까지 잘라내기
+//        subString 인자가 한 개인 경우: index 0부터 인자값 "전"까지 잘라내기
         return bearerToken.substring(BEARER_PREFIX.length()).trim(); // 순수 토큰 반환
     }
 
@@ -127,32 +133,43 @@ public class JwtProvider {
      *  검증/파싱
      * ============== */
 
-    /* 내부 파싱(검증 포함) / 만료 시 clock-skew 허용 옵션 */
+    /** 내부 파싱(검증 포함) - 서명 검증 + 구조 검증한 뒤 Claims(Payload)를 반환
+     *      >> 만료 시 clock-skew 허용 옵션 */
     private Claims parseClaimsInternal(String token, boolean allowClockSkewOnExpiry) {
 //        allowClockSkewOnExpiry: 만료 직후 허용 오차 적용 여부
         try {
             return parser.parseSignedClaims(token).getPayload();
-//            서명 및 기본 구조 검증 후 페이로드(claim)만 추출해 반환
+//            1) 토큰 서명 검증 (key로 signature 확인)
+//            2) JWT 기본 구조 검사(header, payload, signature)
+//            3) 성공 시 Claims 꺼내기 가능 (.getPayload() 가능)
         } catch (ExpiredJwtException ex) {
 //            토큰이 만료된 경우 발생하는 JJWT 전용 예외 처리
+//            : 만료시간이 지난 토큰에도(예외 안에도) Claims 정보가 들어있음
             if(allowClockSkewOnExpiry && clockSkewSeconds > 0 && ex.getClaims() != null) {
+//                호출부가 "만료 직우 오차 허용"을 활성화 했고 설정값이 0보다 큰지 확인
                 Date exp = ex.getClaims().getExpiration(); // 만료 시각(exp) 추출
                 if(exp != null) {
                     long skewMs = clockSkewSeconds * 1000L; // 허용 오차(초)를 밀리초로 변환
                     long now = System.currentTimeMillis();
                     if(now - exp.getTime() <= skewMs) {
-//                        현재 시각 - 만료 시각 <= 허용 오차면 "막 만료"로 간주
+//                        현재 시각 - 만료 시각 <= 허용오차 이내라면 "방금 만료"로 간주
                         return ex.getClaims(); // 예외 Claims를 꺼내 그대로 유효한 것으로 반환
                     }
                 }
             }
-            throw ex; // 허용 오차 범위를 벗어나면 원래의 만료 예외를 다시 던짐 
+            throw ex; // 허용 오차 범위를 벗어나면 원래의 만료 예외를 다시 던짐
+            
+//            EX) 토큰 만료가 12:00:00 이고 서버가 12:00:45로 45초 빠른 경우 clockSkewSeconds가 60이기 때문에
+//                  , 유효한 요청으로 판단하여 Claims 반환
         }
     }
 
-    /* 토큰 유효성 검사 (서명/만료 포함) / clock-skew 허용 적용 */
+    /** 토큰 유효성 검사 (서명/만료 포함) 
+     *  clock-skew 허용 적용
+     *  >> 컨트롤러/필터에서 사용가능한 토큰인지 여부 확인 */
     public boolean isValidToken(String tokenWithoutBearer) {
         try {
+//            검증 - 서명 불일치, 변조, 포맷 이상, 만료(허용 오차 초과) 등 모든 예외는 catch로 전달 - false 반환
             parseClaimsInternal(tokenWithoutBearer, true); // clock-skew 허용 적용
             return true;
         } catch (Exception e) {
@@ -162,9 +179,14 @@ public class JwtProvider {
 
     /* Claim 추출 (검증 포함) */
     public Claims getClaims(String tokenWithoutBearer) {
+//        유효성 검사 + 파싱을 한 번에 처리하고, payload(Claims) 반환
         return parseClaimsInternal(tokenWithoutBearer, true);
     }
 
+    /** 실제 Payload 값(Claims 값) 추출
+     *  : sub - .getSubject()
+     *  : 커스텀 클레임 - .get("클레임명")
+     */
     public String getUsernameFromJwt(String tokenWithoutBearer) {
         return getClaims(tokenWithoutBearer).getSubject();
     }
@@ -172,7 +194,9 @@ public class JwtProvider {
     /* roles >> Set<String> 변환 */
     @SuppressWarnings("unchecked") // 제네릭 캐스팅 경고 억제 (런타임 타입 확인으로 보완)
     public Set<String> getRolesFromJwt(String tokenWithoutBearer) {
-        Object raw = getClaims(tokenWithoutBearer).get("roles");
+//        get("roles")로 커스텀 클레임을 가져오면, JSON 파싱 결과가 List로 반환이 일반적
+//              >> 문자열 집합(Set<String>)으로 표준화해서 반환
+        Object raw = getClaims(tokenWithoutBearer).get(CLAIM_ROLES);
         if(raw == null) return Set.of(); // 권한 없음
 
         if(raw instanceof List<?> list) {
