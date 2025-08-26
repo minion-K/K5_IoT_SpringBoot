@@ -28,7 +28,7 @@ import java.util.List;
     : Spring Security 전체 규칙 설정
     : Spring Security를 통해 웹 애플리케이션의 보안을 구성 (보안 환경설정)
     - (세션 대신) JWT 필터를 적용하여 인증 처리, CORS 및 CSRF 설정을 비활성화
-    >> 서버 간의 통싱을 원활하게 처리
+    >> 서버 간의 통신을 원활하게 처리
     - URL 별 접근 권한, 필터 순서(JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 앞에 배치) 등
 
     # Stateless(무상태성, 세션 미사용) + CSRF 비활성 (JWT 조합)
