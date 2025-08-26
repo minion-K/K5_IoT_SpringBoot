@@ -15,35 +15,57 @@ import java.util.Set;
 /*
     === JwtProvider ===
     : JWT(JSON Web Token)을 생성하고 검증하는 역할
+        >> 로그인 후 서버가 만들어서 클라이언트(브라우저)에게 전달하는 문자열 토큰
     
     cf) JWT
        : 사용자 정보를 암호화된 토큰으로 저장
-       - 서버에 요청할 때마다 전달 가능 (사용자 정보 확인용)
+       - 클라이언트가 서버에 요청할 때마다 전달 가능 (사용자 정보 확인용, Authorization: Bearer <토큰>)
+       - 서버는 토큰을 검증하여 누가 요청했는지 판단
        >> 주로 로그인 인증에 사용
+
+       +) JWT 구조
+            - header: 어떤 알고리즘으로 서명했는지 확인
+            - payload: 사용자 정보 (예: username - 로그인아이디, roles - 권한)
+            - signature: 토큰 변조 방지용 서명
          
-    +) HS256 암호화 알고리즘 사용한 JWT 서명
-        - 비밀키는 Base64로 인코딩 지정
-        - JWT 만료 기간 1시간으로 지정(로그인 유지 시간)
-            >> 환경 변수 설정(jwt.secret / jwt.expiration)
+       +) HS256 암호화 알고리즘 사용한 JWT 서명
+            - 비밀키는 Base64로 인코딩 지정
+            - JWT 만료 기간 1시간으로 지정(로그인 유지 시간)
+                >> 환경 변수 설정(jwt.secret / jwt.expiration)
+                
+   == JwtProvider 클래스 전체 역할 ==
+   1) 토큰 생성(발급) - generatedJwtToken 메서드
+   2) Bearer 제거 - removeBearer 메서드
+   3) 토큰을 검증/파싱 - parseClaimsInternal 메서드
+   4) payload에 저장된 데이터 추출 (username, roles) - getUsernameFromJwt, getRolesFromJwt 메서드
+   5) 만료까지 남은 시간 계산 - getRemainingMillis 메서드
+       
 */
 @Component
 // cf)@Component(클래스 레벨 선언) - 스프링 런타임 시 컴포넌트 스캔을 통해 자동으로 빈을 찾고 등록(의존성 주입)
 // Bean(메서드 레벨 선언) - 반환되는 객체를 개발자 수동으로 빈 등록
 public class JwtProvider {
 
+//    === 상수 & 필드 선언 ===
+    /** Authorization의 접두사 */
     public static final String BEARER_PREFIX = "Bearer "; // removeBearer에서 사용
+    
+    /** 서명용 비밀키, 액세스 토큰 만료시간(ms), 만료 직후 허용할 시계 오차(s) */
 //    환경 변수에 지정한 비밀키와 만료 시간 변수 선언
     private final SecretKey key;
     private final int jwtExpirationMs;
     private final int clockSkewSeconds;
 
-//    성능/안전: 파서를 생성자에서 1회 구성하여 재사용
+    /** 검증/파싱 파서: 파서를 생성자에서 1회 구성하여 재사용 - 성능/일관성 보장 (JJWT의 파서 객체) */
     private final JwtParser parser;
 
+//    === 생성자: 환경변수로부터 설정 주입 + 파서 준비 ===
     public JwtProvider(
-            @Value("${jwt.secret}") String secret,
+//            @Value: application.properties나 application.yml과 같은 설정 파일의 값을 클래스 변수에 주입
+//                      >> 데이터 타입 자동 인식
+            @Value("${jwt.secret}") String secret, // cf) Base64 인코딩된 비밀키 문자열이어야 함
             @Value("${jwt.expiration}") int jwtExpirationMs,
-            @Value("${jwt.clock-skew-seconds:0}") int clockSkewSeconds // 기본 0
+            @Value("${jwt.clock-skew-seconds:0}") int clockSkewSeconds // 기본 0 - 옵션
     ) {
 //        생성자: JwtProvider 객체 생성 시 비밀키와 만료시간 초기화
 
@@ -51,16 +73,17 @@ public class JwtProvider {
         byte[] secretBytes = Decoders.BASE64.decode(secret);
         if(secretBytes.length < 32) {
 //            32byte = 256bit
+//            : HS256에 적정한 강도의 키를 강제하여 보안 강화
             throw new IllegalArgumentException("jwt.secret은 항상 256 비트 이상을 권장합니다.");
         }
 
 //        HMAC-SHA 알고리즘으로 암호화된 키 생성
-        this.key = Keys.hmacShaKeyFor(secretBytes);
+        this.key = Keys.hmacShaKeyFor(secretBytes); // HMAC-SHA의 SecretKey 객체 생성
         this.jwtExpirationMs = jwtExpirationMs;
-        this.clockSkewSeconds = Math.max(clockSkewSeconds, 0);
+        this.clockSkewSeconds = Math.max(clockSkewSeconds, 0); // 음수 방지
 
         this.parser = Jwts.parser()
-                .verifyWith(this.key)
+                .verifyWith(this.key) // 해당 키로 서명 검증을 수행하는 파서(이후 파싱마다 반복 설정 X)
                 .build();
     }
 
@@ -68,7 +91,12 @@ public class JwtProvider {
      *  토큰 생성
      * ============== */
 
-    /* 액세스 토큰 생성: subject=sub(username), roles는 커스텀 클레임 */
+    /*
+     액세스 토큰 생성
+     @param username - sub(subject)에 저장할 사용자 식별자
+     @param roles    - 권한목록(중복 제거용 Set 사용) - JSON 배열로 직렬화
+     
+     subject=sub(username), roles는 커스텀 클레임 */
     public String generateJwtToken(String username, Set<String> roles) {
         long now = System.currentTimeMillis();
         return Jwts.builder()
@@ -87,7 +115,7 @@ public class JwtProvider {
      * ============== */
 
     /* HTTP Authorization 헤더에서 "Bearer" 제거 */
-    public static String removeBearer(String bearerToken) {
+    public static String removeBearer(String bearerToken) { // 입력: "Bearer <token>"
         if (bearerToken == null || !bearerToken.startsWith(BEARER_PREFIX)) {
             throw new IllegalArgumentException("Authorization 형식이 올바르지 않습니다.");
         }
@@ -96,7 +124,7 @@ public class JwtProvider {
     }
 
     /* ==============
-     *  Bearer 처리
+     *  검증/파싱
      * ============== */
 
     /* 내부 파싱(검증 포함) / 만료 시 clock-skew 허용 옵션 */
@@ -163,8 +191,8 @@ public class JwtProvider {
     }
     
     /* 남은 만료 시간(ms)가 음수면 이미 만료 */
-    public long getRemainingMillis(String tokenWithoutBearere) {
-        Claims c = parseClaimsInternal(tokenWithoutBearere, true);
+    public long getRemainingMillis(String tokenWithoutBearer) {
+        Claims c = parseClaimsInternal(tokenWithoutBearer, true);
         return c.getExpiration().getTime() - System.currentTimeMillis();
     }
 }
