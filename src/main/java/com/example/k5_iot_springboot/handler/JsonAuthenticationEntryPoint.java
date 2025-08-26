@@ -30,6 +30,6 @@ public class JsonAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        response.getWriter().write("{\"result\":\"fail\", \"message\":\"인증이 필요합니다/\"}");
+        response.getWriter().write("{\"result\":\"fail\", \"message\":\"인증이 필요합니다\"}");
     }
 }
