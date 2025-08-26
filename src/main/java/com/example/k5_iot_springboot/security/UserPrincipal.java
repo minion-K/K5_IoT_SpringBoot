@@ -18,7 +18,7 @@ import java.util.Collection;
  *      
  * 필요성
  * 1) Security의 표준 진입점: AuthenticationProvider는 UserDetails 타입을 통해 사용자 정보와 권한을 검사
- *      >> 토큰 payload의 username을 통해 DB에서 사용자 정보를 읽고 해당 클래스로 감싼 뒤 반환
+ *      >> 토큰 payload의 username을 통해 DB 에서 사용자 정보를 읽고 해당 클래스로 감싼 뒤 반환
  *          , 이후 인증 과정이 표준화되어 동작
  *          
  * 2) 경량/안정성 향상: 영속성 엔티티(F_User)를 SecurityContext에 보관하면
