@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 public final class RoleManageResponse {
+
     public record UpdateRoleResponse(
             Long userId,
             String loginId,
