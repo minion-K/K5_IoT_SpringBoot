@@ -23,10 +23,10 @@ import java.util.Collection;
  *          
  * 2) 경량/안정성 향상: 영속성 엔티티(F_User)를 SecurityContext에 보관하면
  *                      , 직렬화 문제, 지연 로딩, 순환 참조 등의 문제 발생 가능성이 증가
- *                      >> VO 형태의 UserPrincipal은 인증에 필요한 최소데이터만 포함하고 있어 안전
+ *                      >> VO 형태의 UserPrincipal은 인증에 필요한 최소 데이터만 포함하고 있어 안전
  *                      
  * >> 인증 성공 시 Authentication(principal)에 들어가 SecurityContextHolder에 저장
- *      - 컨트롤러 @AuthenticationPrincipal UserPrincipal principal로 주입받아 사용\
+ *      - 컨트롤러 @AuthenticationPrincipal UserPrincipal principal로 주입받아 사용
  *      - JWT 발급 시 클레임으로 id/username/roles를 넣는 출처로 활용
  *
  * >> 권한 모델 (authorities): GrantedAuthority 집합
