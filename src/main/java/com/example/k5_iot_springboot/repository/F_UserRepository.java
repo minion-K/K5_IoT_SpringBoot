@@ -28,9 +28,9 @@ public interface F_UserRepository extends JpaRepository<F_User, Long> {
 //    @EntityGraph: DATA JPA에서 fetch 조인을 어노테이션으로 대신하는 기능
     @EntityGraph(attributePaths = "roles")
     Optional<F_User> findByLoginId(String loginId);
+    
     @EntityGraph(attributePaths = "roles")
-    Optional<F_User> findWithRolesById(
-            Long id);
+    Optional<F_User> findWithRolesById(Long id);
 
 
     boolean existsByLoginId(String loginId);
