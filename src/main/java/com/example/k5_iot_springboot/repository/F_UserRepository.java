@@ -1,6 +1,7 @@
 package com.example.k5_iot_springboot.repository;
 
 import com.example.k5_iot_springboot.entity.F_User;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -27,6 +28,10 @@ public interface F_UserRepository extends JpaRepository<F_User, Long> {
 //    @EntityGraph: DATA JPA에서 fetch 조인을 어노테이션으로 대신하는 기능
     @EntityGraph(attributePaths = "roles")
     Optional<F_User> findByLoginId(String loginId);
+    @EntityGraph(attributePaths = "roles")
+    Optional<F_User> findWithRolesById(
+            Long id);
+
 
     boolean existsByLoginId(String loginId);
     boolean existsByEmail(String email);
