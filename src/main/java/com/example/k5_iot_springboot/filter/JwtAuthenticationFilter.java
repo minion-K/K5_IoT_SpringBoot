@@ -122,7 +122,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 //            Collection<? extends GrantedAuthority> authorities =toAuthorities(roles);
 
 //            >> user 데이터의 최신 권한을 반영
-            UserPrincipal Principal = principalMapper.map(user);
+            UserPrincipal principal = principalMapper.map(user);
 
 //            9) SecurityContext에 인증 저장
 //            : 인증 객체를 만들고 SecurityContext에 저장
