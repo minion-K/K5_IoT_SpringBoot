@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -53,7 +52,7 @@ public class WebSecurityConfig {
     @Value("${cors.allowed-methods:GET,POST,PUT,PATCH,DELETE,OPTIONS}")
     private String allowedMethods;
     
-    @Value("${cors.exposed-headers:Authorization,Set-cookie}")
+    @Value("${cors.exposed-headers:Authorization,Set-Cookie}")
     private String exposedHeaders; // 필요한 헤더만 노출
 
     @Value("${security.h2-console:true}") // 로컬 개발 시 true - 개발용 H2 콘솔 접근 허용 여부(아래에서 권한 부여)
@@ -149,15 +148,28 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> {
 //                    H2 콘솔 접근 권한 열기(개발 환경에서 DB을 직접 확인 - 인증 절차 없이 접속할 수 있도록 예외)
                     if(h2ConsoleEnabled) auth.requestMatchers("/h2-console/**").permitAll();
+                    
+//                    SecurityFilterChain URL 보안 규칙
                     auth
 //                            PreFlight 허용
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+//                            === URL 레벨에서 1차 차단(+ 컨트롤러 메서드에서 @PreAuthorize로 2차 방어) ===
 //                            인증/회원가입 등 공개 엔드포인트 - 토큰이 필요없는 기능
-                        .requestMatchers(
-                                "/api/v1/auth/**"
-                        ).permitAll()
-//                            읽기 공개 예시(게시글 목록, 조회 등)
-                        .requestMatchers(HttpMethod.GET, "/api/v1/boards/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+
+//                            마이페이지(내 정보) - 인증 필요 (모든 역할 가능)
+                        .requestMatchers("api/v1/users/me/**").authenticated()
+
+//                            boards 접근 제어
+                        .requestMatchers(HttpMethod.GET,        "/api/v1/boards/**").hasAnyRole("USER","MANAGER","ADMIN")
+                        .requestMatchers(HttpMethod.POST,       "/api/v1/boards/**").hasAnyRole("MANAGER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,     "/api/v1/boards/**").hasAnyRole("MANAGER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT,        "/api/v1/boards/**").hasAnyRole("ADMIN")
+
+//                            ADMIN 전용 권한 관리 API
+                        .requestMatchers("/api/v1/admin/**").hasAnyRole("ADMIN")
+
                         .anyRequest().authenticated(); // 나머지는 인증 필요 - JWT 토큰이 있어야 접근 가능
                     }
                 );
