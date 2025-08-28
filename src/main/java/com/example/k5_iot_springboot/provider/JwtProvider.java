@@ -126,7 +126,7 @@ public class JwtProvider {
         if (bearerToken == null || !bearerToken.startsWith(BEARER_PREFIX)) {
             throw new IllegalArgumentException("Authorization 형식이 올바르지 않습니다.");
         }
-//        subString 인자가 한 개인 경우: index 0부터 인자값 "전"까지 잘라내기
+//        subString - 인자가 한 개인 경우: index 0부터 인자값 "전"까지 잘라내기
         return bearerToken.substring(BEARER_PREFIX.length()).trim(); // 순수 토큰 반환
     }
 
