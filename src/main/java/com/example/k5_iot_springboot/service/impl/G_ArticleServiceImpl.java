@@ -76,7 +76,7 @@ public class G_ArticleServiceImpl implements G_ArticleService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')or @authz.isArticleAuthor(#articleId, authentication)")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER') or @authz.isArticleAuthor(#articleId, authentication)")
 //    Bean으로 등록된 AuthorizationChecker를 어노테이션화 한 기능
 //    cf) PreAuthorize | PostAuthorize 내부의 기본 변수
 //          - authentication: 현재 인증 객체 (자동 캐치)
@@ -101,7 +101,7 @@ public class G_ArticleServiceImpl implements G_ArticleService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasRole('ADMIN') or authz(#id, authentication)")
+    @PreAuthorize("hasRole('ADMIN') or @authz.isArticleAuthor(#id, authentication)")
     public ResponseDto<Void> deleteArticle(UserPrincipal principal, Long id) {
 
         if(id == null) throw new IllegalArgumentException("ARTICLE_ID_REQUIRED");
