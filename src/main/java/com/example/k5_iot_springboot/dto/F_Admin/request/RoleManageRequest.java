@@ -1,4 +1,4 @@
-package com.example.k5_iot_springboot.dto.G_Admin.request;
+package com.example.k5_iot_springboot.dto.F_Admin.request;
 
 import com.example.k5_iot_springboot.common.enums.RoleType;
 import jakarta.validation.constraints.NotEmpty;

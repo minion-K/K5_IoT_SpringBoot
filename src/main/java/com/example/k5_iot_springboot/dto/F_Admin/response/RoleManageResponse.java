@@ -1,4 +1,4 @@
-package com.example.k5_iot_springboot.dto.G_Admin.response;
+package com.example.k5_iot_springboot.dto.F_Admin.response;
 
 import com.example.k5_iot_springboot.common.enums.RoleType;
 
