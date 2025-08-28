@@ -39,7 +39,7 @@ import java.util.*;
        
 */
 @Component
-// cf)@Component(클래스 레벨 선언) - 스프링 런타임 시 컴포넌트 스캔을 통해 자동으로 빈을 찾고 등록(의존성 주입)
+// cf) @Component(클래스 레벨 선언) - 스프링 런타임 시 컴포넌트 스캔을 통해 자동으로 빈을 찾고 등록(의존성 주입)
 // Bean(메서드 레벨 선언) - 반환되는 객체를 개발자 수동으로 빈 등록
 public class JwtProvider {
 
@@ -70,6 +70,7 @@ public class JwtProvider {
 //        생성자: JwtProvider 객체 생성 시 비밀키와 만료시간 초기화
 
 //        키 강도 검증(Base64 디코딩 후 256 비트 이상 권장)
+//        강도: 복잡성(길수록 복잡)
         byte[] secretBytes = Decoders.BASE64.decode(secret);
         if(secretBytes.length < 32) {
 //            32byte = 256bit
