@@ -81,7 +81,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 //            2) Authorization 헤더에서 JWT 토큰 추출
             String authorization = request.getHeader(AUTH_HEADER);
 
-//            3) 헤더가 없으면(=비로그인 요청) 그냥 통와 - 보호 리소스는 뒤에서 401/403 처리
+//            3) 헤더가 없으면(=비로그인 요청) 그냥 통과 - 보호 리소스는 뒤에서 401/403 처리
             if(authorization == null || authorization.isBlank()) {
                 filterChain.doFilter(request, response);
                 return;
