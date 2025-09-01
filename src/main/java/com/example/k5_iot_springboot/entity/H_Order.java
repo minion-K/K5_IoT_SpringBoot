@@ -35,7 +35,7 @@ public class H_Order extends BaseTimeEntity {
     private F_User user;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "order_status", nullable = false, length = 16)
+    @Column(name = "order_status", nullable = false, length = 50)
     private OrderStatus orderStatus = OrderStatus.PENDING;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)

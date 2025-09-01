@@ -215,7 +215,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
     updated_at		DATETIME(6) NOT NULL,
     CONSTRAINT fk_orders_users
 		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-	CONSTRAINT chk_orders_os CHECK (order_status IN ('PENDING', 'APPROVED', 'CANCELED')),
+	CONSTRAINT chk_orders_os CHECK (order_status IN ('PENDING', 'APPROVED', 'CANCELLED')),
     INDEX idx_orders_user (user_id),
     INDEX ids_orders_status (order_status),
     INDEX idx_orders_created_at (created_at)
