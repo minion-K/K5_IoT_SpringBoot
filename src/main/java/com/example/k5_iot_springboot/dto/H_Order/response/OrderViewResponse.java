@@ -16,8 +16,8 @@ public class OrderViewResponse {
             Long orderId,
             Long userId,
             String orderStatus,
-            Integer TotalAmount,
-            Long TotalQuantity,
+            Integer orderTotalAmount,
+            Long orderTotalQty,
             String orderedAt
     ) {}
 }

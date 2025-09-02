@@ -21,8 +21,8 @@ public class OrderTotalsView {
 
     private Long user_id;
     private String order_status;
-    private Integer total_amount;
-    private Long total_qty;
+    private Integer order_total_amount;
+    private Long order_total_qty;
 
     @Column(name = "ordered_at")
     private LocalDateTime orderedAt;
