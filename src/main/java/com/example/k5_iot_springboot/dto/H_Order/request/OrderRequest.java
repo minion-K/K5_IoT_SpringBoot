@@ -12,6 +12,22 @@ public class OrderRequest {
     ) {}
 
     /** 주문 항목(라인) - 생성 요청용 */
+    /*
+    * int(기본형) VS Integer(참조형)
+    * 1) int
+    *   : null 불가 (값이 무조건 존재해야 함)
+    *   - 주로 필수값일 때 사용
+    *   - 계산에 직접 사용 가능(사칙연산 등)
+    * 
+    * 2) Integer
+    *   : null 가능 (값이 없다는 상태 표현 가능)
+    *   - JPA/Hibernate 매핑 시 DB 에서 NULL 그대로를 받기 위해 주로 사용
+    *   - 제네릭 컬렉션(List, Map)에는 무조건 객체 타입
+    *   EX) 뷰에서 집계 결과가 없으면 NULL 가능 - order_total_qty
+    *
+    * cf) 수량(quantity) - int
+    *     합계(totalQuantity) - Integer
+    * */
     public record OrderItemLine(
             Long productId,
             int quantity
