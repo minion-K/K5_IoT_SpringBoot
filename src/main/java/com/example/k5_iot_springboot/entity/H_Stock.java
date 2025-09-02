@@ -19,7 +19,7 @@ public class H_Stock extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+    @NotNull // 참조되는 값이 PK 값이기 때문에 비워질 수 없음
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id", nullable = false,
         foreignKey = @ForeignKey(name = "fk_stocks_product"))
