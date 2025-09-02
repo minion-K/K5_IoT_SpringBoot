@@ -33,7 +33,7 @@ public class H_StockController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping(APIMappingPattern.Stocks.ADJUST)
+    @PutMapping
     public ResponseEntity<ResponseDto<StockResponse.Response>> set(
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody StockRequest.StockSet req

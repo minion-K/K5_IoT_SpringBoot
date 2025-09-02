@@ -4,7 +4,9 @@ import com.example.k5_iot_springboot.dto.H_Order.request.ProductRequest;
 import com.example.k5_iot_springboot.dto.H_Order.response.ProductResponse;
 import com.example.k5_iot_springboot.dto.ResponseDto;
 import com.example.k5_iot_springboot.entity.H_Product;
+import com.example.k5_iot_springboot.entity.H_Stock;
 import com.example.k5_iot_springboot.repository.H_ProductRepository;
+import com.example.k5_iot_springboot.repository.H_StockRepository;
 import com.example.k5_iot_springboot.security.UserPrincipal;
 import com.example.k5_iot_springboot.service.H_ProductService;
 import jakarta.persistence.EntityNotFoundException;
@@ -20,8 +22,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class H_ProductServiceImpl implements H_ProductService {
-    public final H_ProductRepository productRepository;
-
+    private final H_ProductRepository productRepository;
+    private final H_StockRepository stockRepository;
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
@@ -34,6 +36,13 @@ public class H_ProductServiceImpl implements H_ProductService {
                 .build();
 
         H_Product saved = productRepository.save(product);
+
+        stockRepository.save(
+                H_Stock.builder()
+                        .product(saved)
+                        .build()
+        );
+
         data = new ProductResponse.DetailResponse(saved.getId(), saved.getName(), saved.getPrice());
 
         return ResponseDto.setSuccess("제품이 성공적으로 등록되었습니다.", data);
@@ -56,7 +65,7 @@ public class H_ProductServiceImpl implements H_ProductService {
         boolean nameChanged = request.name() != null && !Objects.equals(product.getName(), request.name());
         boolean priceChanged = request.price() != null && !Objects.equals(product.getPrice(), request.price());
 
-        if(nameChanged && priceChanged) {
+        if(!nameChanged && !priceChanged) {
             throw new IllegalArgumentException("변경된 데이터가 없습니다.");
         }
 //        if(product.getName().equals(request.name()) && product.getPrice() == request.price()) {

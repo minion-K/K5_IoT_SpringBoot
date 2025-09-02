@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,4 +29,14 @@ public class H_Stock extends BaseTimeEntity {
     @Min(0)
     @Column(nullable = false)
     private int quantity;
+
+    @Builder
+    private H_Stock(H_Product product) {
+        this.product = product;
+        this.quantity = 0; // 제품 생성 시 수량 초기화
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 }

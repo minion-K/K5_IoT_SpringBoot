@@ -10,6 +10,7 @@ import com.example.k5_iot_springboot.service.H_StockService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ public class H_StockServiceImpl implements H_StockService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ResponseDto<StockResponse.Response> adjust(UserPrincipal principal, StockRequest.@Valid StockAdjust req) {
 //        재고 증감 (delta)
 //        : delta 값이 양수 - 입고/반품
@@ -45,12 +47,32 @@ public class H_StockServiceImpl implements H_StockService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasAnyRole('ADMIN','MANAGER')")
     public ResponseDto<StockResponse.Response> set(UserPrincipal principal, StockRequest.@Valid StockSet req) {
-        return null;
+        StockResponse.Response data = null;
+
+        H_Stock stock = stockRepository.findByProductIdForUpdate(req.productId())
+                .orElseThrow(() -> new EntityNotFoundException("재고 정보를 찾을 수 없습니다. productId:" + req.productId()));
+
+        if(req.quantity() < 0) throw new IllegalArgumentException("재고는 0 이상이어야 합니다.");
+        stock.setQuantity(req.quantity());
+
+        data = new StockResponse.Response(
+                stock.getProduct().getId(),
+                stock.getQuantity()
+        );
+
+        return ResponseDto.setSuccess("재고가 성공적으로 설정되었습니다.", data);
     }
 
     @Override
     public ResponseDto<StockResponse.Response> getByProductId(Long productId) {
-        return null;
+        StockResponse.Response data = null;
+
+        H_Stock stock = stockRepository.findByProductId(productId)
+                .orElseThrow(() -> new EntityNotFoundException("재고 정보를 찾을 수 없습니다. productId:" + productId));
+
+        data = new StockResponse.Response(productId, stock.getQuantity());
+        return ResponseDto.setSuccess("재고가 성공적으로 조회되었습니다.", data);
     }
 }
