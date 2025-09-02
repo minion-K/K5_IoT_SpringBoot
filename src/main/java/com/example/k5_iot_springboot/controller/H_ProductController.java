@@ -40,7 +40,7 @@ public class H_ProductController {
             @AuthenticationPrincipal UserPrincipal principal,
             @Valid @RequestBody ProductRequest.Update request
             ) {
-        ResponseDto<ProductResponse.DetailResponse> response = productService.update(productId,principal, request);
+        ResponseDto<ProductResponse.DetailResponse> response = productService.update(productId, principal, request);
         return ResponseEntity.ok(response);
     }
 //    제품 조회

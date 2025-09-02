@@ -72,4 +72,13 @@ public class APIMappingPattern {
     public static final String ROOT = BASE + "/products";
     public static final String ID_ONLY = "/{productId}";
     }
+
+    //    == 6. 재고(H_Stocks) == //
+    public static final class Stocks {
+        private Stocks() {}
+
+        public static final String ROOT = BASE + "/stocks";
+        public static final String ADJUST = "/adjust";
+        public static final String PRODUCT_ID = "/{productId}";
+    }
 }

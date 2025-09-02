@@ -304,8 +304,8 @@ SELECT
 	o.id										AS order_id,
     o.user_id									AS user_id,
     o.order_status								AS order_status,
-    CAST(SUM(oi.quantity * p.price) AS SIGNED) 	AS order_total_amount,
-    CAST(SUM(oi.quantity) AS SIGNED)			AS order_total_qty,
+    CAST(SUM(oi.quantity * p.price) AS SIGNED) 	AS order_total_amount, -- CAST > BIGINT로 고정
+    CAST(SUM(oi.quantity) AS SIGNED)			AS order_total_qty, -- CAST > BIGINT로 고정
     MIN(o.created_at)							AS ordered_at
 FROM
 	orders o

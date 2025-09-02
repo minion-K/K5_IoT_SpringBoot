@@ -14,6 +14,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -21,7 +23,7 @@ public class H_ProductServiceImpl implements H_ProductService {
     public final H_ProductRepository productRepository;
 
     @Override
-    @PreAuthorize("hasrole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public ResponseDto<ProductResponse.DetailResponse> create(UserPrincipal principal, ProductRequest.@Valid Create request) {
         ProductResponse.DetailResponse data = null;
@@ -39,7 +41,7 @@ public class H_ProductServiceImpl implements H_ProductService {
     }
 
     @Override
-    @PreAuthorize("hasrole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public ResponseDto<ProductResponse.DetailResponse> update(Long productId, UserPrincipal principal, ProductRequest.@Valid Update request) {
         ProductResponse.DetailResponse data = null;
@@ -47,12 +49,22 @@ public class H_ProductServiceImpl implements H_ProductService {
         H_Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
 
-        if(request.name() != null && request.price() != null) {
+        if(request.name() == null && request.price() == null) {
             throw new IllegalArgumentException("제품을 수정할 데이터가 없습니다.");
         }
 
-        if(request.name() != null) product.setName(request.name());
-        if(request.price() != null) product.setPrice(request.price());
+        boolean nameChanged = request.name() != null && !Objects.equals(product.getName(), request.name());
+        boolean priceChanged = request.price() != null && !Objects.equals(product.getPrice(), request.price());
+
+        if(nameChanged && priceChanged) {
+            throw new IllegalArgumentException("변경된 데이터가 없습니다.");
+        }
+//        if(product.getName().equals(request.name()) && product.getPrice() == request.price()) {
+//            throw new IllegalArgumentException("변경된 데이터가 없습니다.");
+//        }
+
+        if(nameChanged) product.setName(request.name());
+        if(priceChanged) product.setPrice(request.price());
 
         data = new ProductResponse.DetailResponse(
                 product.getId(),

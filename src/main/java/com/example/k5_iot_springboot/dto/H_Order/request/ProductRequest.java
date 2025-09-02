@@ -1,5 +1,7 @@
 package com.example.k5_iot_springboot.dto.H_Order.request;
 
+import jakarta.validation.constraints.NotNull;
+
 public class ProductRequest {
     /** 제품 등록 요청 DTO */
     public record Create(
