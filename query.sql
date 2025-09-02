@@ -285,14 +285,14 @@ VALUES
 -- : EX) GET /api/v1/orders/{orderId}/items
 CREATE OR REPLACE VIEW order_summary AS 
 SELECT
-	o.id					AS order_id,
-    o.user_id				AS user_id,
-    o.order_status			AS order_status,
-    p.name 					AS product_name,
-    oi.quantity				AS quantity,
-    p.price					AS price,
-    (oi.quantity * p.price)	AS total_price,
-    o.created_at			AS ordered_at
+	o.id									AS order_id,
+    o.user_id								AS user_id,
+    o.order_status							AS order_status,
+    p.name 									AS product_name,
+    oi.quantity								AS quantity,
+    p.price									AS price,
+    CAST((oi.quantity * p.price) AS SIGNED)	AS total_price, -- CAST > BIGINT로 고정
+    o.created_at							AS ordered_at
 FROM 
 	orders o
     JOIN order_items oi ON o.id = oi.order_id
@@ -301,12 +301,12 @@ FROM
 -- 뷰 (주문 합계)
 CREATE OR REPLACE VIEW order_totals AS
 SELECT
-	o.id						AS order_id,
-    o.user_id					AS user_id,
-    o.order_status				AS order_status,
-    SUM(oi.quantity * p.price)	AS total_amount,
-    SUM(oi.quantity)			AS total_qty,
-    MIN(o.created_at)			AS ordered_at
+	o.id										AS order_id,
+    o.user_id									AS user_id,
+    o.order_status								AS order_status,
+    CAST(SUM(oi.quantity * p.price) AS SIGNED) 	AS order_total_amount,
+    CAST(SUM(oi.quantity) AS SIGNED)			AS order_total_qty,
+    MIN(o.created_at)							AS ordered_at
 FROM
 	orders o
     JOIN order_items oi ON o.id = oi.order_id
@@ -334,7 +334,7 @@ CREATE TRIGGER trg_after_order_status_update
     BEGIN
 		IF NEW.order_status <> OLD.order_status THEN -- A <> B 는 A != B와 같은 의미(같지 않다)
 			INSERT INTO order_logs(order_id, message)
-            VALUES(NEW.id, concat('주문 상태가 ', OLD.order_status, ' -> ', NEW.order_status, '로 변경되었습니다.'))
+            VALUES(NEW.id, concat('주문 상태가 ', OLD.order_status, ' -> ', NEW.order_status, '로 변경되었습니다.'));
 		END IF;
 END //
 DELIMITER ;

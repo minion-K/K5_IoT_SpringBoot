@@ -64,4 +64,12 @@ public class APIMappingPattern {
         public static final String ROOT = BASE + "/boards";
         public static final String ID_ONLY = "/{boardId}";
     }
+
+//    == 5. 제품(H_Product) == //
+    public static final class Products {
+        private Products() {}
+
+    public static final String ROOT = BASE + "/products";
+    public static final String ID_ONLY = "/{productId}";
+    }
 }

@@ -7,6 +7,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Immutable;
+import org.hibernate.type.descriptor.jdbc.DecimalJdbcType;
 
 import java.time.LocalDateTime;
 
