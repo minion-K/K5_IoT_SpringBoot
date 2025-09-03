@@ -33,7 +33,7 @@ public class H_OrderRepositoryImpl implements H_OrderRepositoryCustom{
         Map<String, Object> params = new HashMap<>();
 
         if(userId != null) {
-            jpql.append(" and user.id = :userId");
+            jpql.append(" and o.user.id = :userId");
             params.put("userId", userId);
         }
 
