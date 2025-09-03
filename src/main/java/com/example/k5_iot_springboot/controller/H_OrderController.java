@@ -1,18 +1,19 @@
 package com.example.k5_iot_springboot.controller;
 
+import com.example.k5_iot_springboot.common.enums.OrderStatus;
 import com.example.k5_iot_springboot.dto.H_Order.request.OrderRequest;
 import com.example.k5_iot_springboot.dto.H_Order.response.OrderResponse;
 import com.example.k5_iot_springboot.dto.ResponseDto;
-import com.example.k5_iot_springboot.entity.H_Order;
 import com.example.k5_iot_springboot.security.UserPrincipal;
 import com.example.k5_iot_springboot.service.H_OrderService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
-import org.hibernate.metamodel.mapping.ordering.ast.PathConsumer;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 // === Controller 기본 어노테이션
 @RestController
@@ -39,7 +40,7 @@ public class H_OrderController {
         return ResponseEntity.ok().body(response); // 클라이언트에 전달할 정보가 있을 경우에 사용
     }
 
-    /** 주문 승인 ADMIN/MANAGER만 가능 */
+    /** 주문 승인: User 불가능, ADMIN/MANAGER만 가능 */
     @PostMapping("/{orderId}/approve")
     public ResponseEntity<ResponseDto<OrderResponse.Detail>> approve(
             @AuthenticationPrincipal UserPrincipal principal, // 주문 승인자 정보를 저장(활용)할 경우
@@ -49,13 +50,26 @@ public class H_OrderController {
         return ResponseEntity.ok(response);
     }
 
-    /** 주문 취소: 대기 상태일때만 취소 가능 */
+    /** 주문 취소: 본인한정 + 대기 상태(PENDING), MANAGER, ADMIN */
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<ResponseDto<OrderResponse.Detail>> cancel(
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable Long orderId
     ) {
         ResponseDto<OrderResponse.Detail> response = orderService.cancel(principal, orderId);
+        return ResponseEntity.ok(response);
+    }
+
+    /** 주문 검색: User - 본인 주문, MANAGER/ADMIN: 전체 주문 */
+    @GetMapping
+    public ResponseEntity<ResponseDto<List<OrderResponse.Detail>>> search(
+            @AuthenticationPrincipal UserPrincipal principal,   // 로그인한 사용자 정보
+            @RequestParam(required = false) Long userId,        // 검색할 사용자 정보
+            @RequestParam(required = false) OrderStatus status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to
+            ) {
+        ResponseDto<List<OrderResponse.Detail>> response = orderService.search(principal, userId, status, from, to);
         return ResponseEntity.ok(response);
     }
 }
