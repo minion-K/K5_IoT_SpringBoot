@@ -35,7 +35,7 @@ public class H_OrderController {
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestBody OrderRequest.OrderCreateRequest request
     ) {
-        ResponseDto<OrderResponse.Detail> response = orderService.create(request);
+        ResponseDto<OrderResponse.Detail> response = orderService.create(principal, request);
 //        return ResponseEntity.ok(response);
         return ResponseEntity.ok().body(response); // 클라이언트에 전달할 정보가 있을 경우에 사용
     }

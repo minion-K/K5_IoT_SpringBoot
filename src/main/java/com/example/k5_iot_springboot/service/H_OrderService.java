@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface H_OrderService {
-    ResponseDto<OrderResponse.Detail> create(OrderRequest.OrderCreateRequest request);
+    ResponseDto<OrderResponse.Detail> create(UserPrincipal principal, OrderRequest.OrderCreateRequest request);
     ResponseDto<OrderResponse.Detail> approve(UserPrincipal principal, Long orderId);
     ResponseDto<OrderResponse.Detail> cancel(UserPrincipal principal, Long orderId);
     ResponseDto<List<OrderResponse.Detail>> search(UserPrincipal principal, Long userId, OrderStatus status, LocalDateTime from, LocalDateTime to);

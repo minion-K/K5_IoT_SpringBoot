@@ -158,7 +158,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
 
 //                            마이페이지(내 정보) - 인증 필요 (모든 역할 가능)
-                        .requestMatchers("api/v1/users/me/**").authenticated()
+                        .requestMatchers("/api/v1/users/me/**").authenticated()
 
 //                            boards 접근 제어
                         .requestMatchers(HttpMethod.GET,        "/api/v1/boards/**").hasAnyRole("USER","MANAGER","ADMIN")
@@ -181,6 +181,8 @@ public class WebSecurityConfig {
                             .requestMatchers(HttpMethod.GET, "/api/v1/stocks/**").permitAll()
                             .requestMatchers(HttpMethod.POST, "/api/v1/stocks/**").hasAnyRole("ADMIN","MANAGER")
                             .requestMatchers(HttpMethod.PUT, "/api/v1/stocks/**").hasAnyRole("ADMIN", "MANAGER")
+
+//                            orders 접근 제어
 
                         .anyRequest().authenticated(); // 나머지는 인증 필요 - JWT 토큰이 있어야 접근 가능
                     }
