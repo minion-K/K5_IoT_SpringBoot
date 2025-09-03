@@ -339,12 +339,16 @@ CREATE TRIGGER trg_after_order_status_update
 END //
 DELIMITER ;
         
-
+select * from users;
 
 SELECT * FROM `products`;
 SELECT * FROM `stocks`;
 SELECT * FROM `orders`;
 SELECT * FROM `order_items`;
 SELECT * FROM `order_logs`;
+
+select p.id, p.name, s.quantity
+from products p join stocks s on p.id = s.product_id;
+
 
 USE k5_iot_springboot;

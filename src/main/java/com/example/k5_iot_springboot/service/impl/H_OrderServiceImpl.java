@@ -194,9 +194,22 @@ public class H_OrderServiceImpl implements H_OrderService {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN') or @authz.isSelf(#principal.id, authentication)")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN') or @authz.isSelf(#userId, authentication)")
     public ResponseDto<List<OrderResponse.Detail>> search(UserPrincipal principal, Long userId, OrderStatus status, LocalDateTime from, LocalDateTime to) {
-        return null;
+        List<OrderResponse.Detail> data = null;
+
+        LocalDateTime fromUtc = DateUtils.kstToUtc(from);
+        LocalDateTime toUtc = DateUtils.kstToUtc(to);
+
+
+        List<H_Order> orders = orderRepository.searchOrders(userId, status, fromUtc ,toUtc);
+
+        data = orders.stream()
+                .map(this::toOrderResponse)
+                .toList();
+
+
+        return ResponseDto.setSuccess("조건 검색이 완료되었습니다.", data);
     }
 
 //    ===== 변환 유틸 =====
@@ -237,7 +250,7 @@ public class H_OrderServiceImpl implements H_OrderService {
         );
     }
 
-//    == 호출자 권한이 MANAGER/ADMIN인지 확인 == //
+//    == 호출자 권한이 MANAGER/ADMIN 인지 확인 == //
     private boolean hasManagerOrAdmin(UserPrincipal principal) {
         if(principal == null || principal.getAuthorities() == null) return false;
 
