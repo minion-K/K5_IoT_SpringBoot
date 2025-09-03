@@ -114,7 +114,6 @@ public class WebSecurityConfig {
      * - CSRF 보호를 비활성화, CORS 정책을 활성화
      * ==============================
      * */
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http

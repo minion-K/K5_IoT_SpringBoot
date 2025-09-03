@@ -170,7 +170,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
         /* USER/ADMIN -> "ROLE_USER" / "ROLE_ADMIN" */
     private List<GrantedAuthority> toAuthorities(Set<String> roles) {
-        if(roles == null ||roles.isEmpty()) return List.of();
+        if(roles == null || roles.isEmpty()) return List.of();
         return roles.stream()
                 .map(role -> role.startsWith("ROLE_") ? role : "ROLE" +role)
                 .map(SimpleGrantedAuthority::new)

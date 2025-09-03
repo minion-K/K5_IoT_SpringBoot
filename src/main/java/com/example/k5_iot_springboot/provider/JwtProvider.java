@@ -45,7 +45,7 @@ public class JwtProvider {
 
 //    === 상수 & 필드 선언 ===
     /** Authorization의 접두사 */
-    public static final String BEARER_PREFIX = "Bearer "; // removeBearer에서 사용
+    public static final String BEARER_PREFIX = "Bearer "; // removeBearer 에서 사용
 
     /** 커스텀 클레임 키 */
     public static final String CLAIM_ROLES = "roles";
