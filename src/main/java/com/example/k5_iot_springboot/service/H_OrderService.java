@@ -9,4 +9,5 @@ import jakarta.validation.Valid;
 public interface H_OrderService {
     ResponseDto<OrderResponse.Detail> create(OrderRequest.@Valid OrderCreateRequest request);
     ResponseDto<OrderResponse.Detail> approve(UserPrincipal principal, Long orderId);
+    ResponseDto<OrderResponse.Detail> cancel(UserPrincipal principal, Long orderId);
 }

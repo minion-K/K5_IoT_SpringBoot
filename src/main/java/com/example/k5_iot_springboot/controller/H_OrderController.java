@@ -49,12 +49,13 @@ public class H_OrderController {
         return ResponseEntity.ok(response);
     }
 
-    /** 주문 취소: 대기 상태일테만 취소 가능 */
+    /** 주문 취소: 대기 상태일때만 취소 가능 */
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<ResponseDto<OrderResponse.Detail>> cancel(
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable Long orderId
     ) {
-
+        ResponseDto<OrderResponse.Detail> response = orderService.cancel(principal, orderId);
+        return ResponseEntity.ok(response);
     }
 }
