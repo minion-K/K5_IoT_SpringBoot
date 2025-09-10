@@ -19,7 +19,7 @@ public interface F_UserRepository extends JpaRepository<F_User, Long> {
     @Query("""
         SELECT u
         FROM F_User u
-            LEFT JOIN FETCH u.roles
+            LEFT JOIN FETCH u.userRoles
         WHERE u.loginId = :loginId    
     """)
     Optional<F_User> findWithRolesByLoginId(@Param("loginId") String loginId);

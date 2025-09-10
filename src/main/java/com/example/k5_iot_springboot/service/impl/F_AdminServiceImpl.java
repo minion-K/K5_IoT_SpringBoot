@@ -4,7 +4,9 @@ import com.example.k5_iot_springboot.common.enums.RoleType;
 import com.example.k5_iot_springboot.dto.F_Admin.request.RoleManageRequest;
 import com.example.k5_iot_springboot.dto.F_Admin.response.RoleManageResponse;
 import com.example.k5_iot_springboot.dto.ResponseDto;
+import com.example.k5_iot_springboot.entity.F_Role;
 import com.example.k5_iot_springboot.entity.F_User;
+import com.example.k5_iot_springboot.repository.F_RoleRepository;
 import com.example.k5_iot_springboot.repository.F_UserRepository;
 import com.example.k5_iot_springboot.security.UserPrincipal;
 import com.example.k5_iot_springboot.service.F_AdminService;
@@ -21,6 +23,7 @@ import java.util.Set;
 @Transactional(readOnly = true)
 public class F_AdminServiceImpl implements F_AdminService {
     private final F_UserRepository userRepository;
+    private final F_RoleRepository roleRepository;
 
     @Override
     @Transactional
@@ -31,15 +34,15 @@ public class F_AdminServiceImpl implements F_AdminService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 ID의 user가 없습니다."));
 
 //        2) 전체 교체 - 요청에 @NotEmpty 이므로 최소 1개 이상의 권한을 보장
-        user.getRoles().clear();
-        req.roles().forEach(user::addRole);
+        user.getUserRoles().clear();
+//        req.roles().forEach(user::addRole);
 
         userRepository.flush();
 
         RoleManageResponse.UpdateRoleResponse data = new RoleManageResponse.UpdateRoleResponse(
                 user.getId(),
                 user.getLoginId(),
-                Set.copyOf(user.getRoles()), // 방어적 복사 - JPA 엔티티 컬렉션 필드를 DTO 내부에서 조작할 경우 캡슐화 깨짐 위험 발생
+                Set.copyOf(user.getRoleTypes()), // 방어적 복사 - JPA 엔티티 컬렉션 필드를 DTO 내부에서 조작할 경우 캡슐화 깨짐 위험 발생
                 user.getUpdatedAt()
         );
 
@@ -52,43 +55,52 @@ public class F_AdminServiceImpl implements F_AdminService {
         F_User user = userRepository.findWithRolesById(req.userId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 ID의 user가 없습니다."));
 
-        RoleType added = req.role();
-        user.addRole(added);
+        F_Role role = roleRepository.findById(req.role())
+                        .orElseThrow(() -> new EntityNotFoundException("해당 권한을 찾을 수 없습니다."));
+
+        user.grantRole(role);
 
         userRepository.flush();
 
         RoleManageResponse.AddRoleResponse data = new RoleManageResponse.AddRoleResponse(
                 user.getId(),
                 user.getLoginId(),
-                added,
-                Set.copyOf(user.getRoles()),
+                req.role(),
+                Set.copyOf(user.getRoleTypes()),
                 user.getUpdatedAt()
         );
 
         return ResponseDto.setSuccess("SUCCESS", data);
     }
 
+//    권한 제거 (권한 회수 - 최소 1개 권한 보장: 모두 제거되면 USER 유지)
     @Override
     @Transactional
     public ResponseDto<RoleManageResponse.RemoveRoleResponse> removeRole(UserPrincipal principal, RoleManageRequest.@Valid RemoveRolRequest req) {
         F_User user = userRepository.findWithRolesById(req.userId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 ID의 user가 없습니다."));
 
-        RoleType removed = req.role();
-        user.removeRole(removed);
-
+        F_Role role = roleRepository.findById(req.role())
+                .orElseThrow(() -> new EntityNotFoundException("해당 권한을 찾을 수 없습니다."));
+        
+        user.revokeRole(role); // orphanRemoval = true -> 고아 객체 자동 제거
+        
 //        비워지는 경우 기본 USER 유지(최소 1개 이상의 권한을 가질 것을 보장하는 정책)
-        if(user.getRoles().isEmpty()) {
-            user.addRole(RoleType.USER);
-        }
+//        if(user.getRoles().isEmpty()) {
+//            user.addRole(RoleType.USER);
+//        }
 
         userRepository.flush();
+
+        if (user.getUserRoles().isEmpty()) {
+            user.grantRole(roleRepository.getReferenceById(RoleType.USER));
+        }
 
         RoleManageResponse.RemoveRoleResponse data = new RoleManageResponse.RemoveRoleResponse(
                 user.getId(),
                 user.getLoginId(),
-                removed,
-                Set.copyOf(user.getRoles()),
+                req.role(),
+                Set.copyOf(user.getRoleTypes()),
                 user.getUpdatedAt()
         );
 

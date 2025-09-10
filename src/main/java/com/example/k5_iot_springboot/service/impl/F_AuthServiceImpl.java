@@ -1,11 +1,14 @@
 package com.example.k5_iot_springboot.service.impl;
 
+import com.example.k5_iot_springboot.common.enums.RoleType;
 import com.example.k5_iot_springboot.dto.F_Auth.request.SignInRequest;
 import com.example.k5_iot_springboot.dto.F_Auth.request.SignUpRequest;
 import com.example.k5_iot_springboot.dto.F_Auth.response.SignInResponse;
 import com.example.k5_iot_springboot.dto.ResponseDto;
+import com.example.k5_iot_springboot.entity.F_Role;
 import com.example.k5_iot_springboot.entity.F_User;
 import com.example.k5_iot_springboot.provider.JwtProvider;
+import com.example.k5_iot_springboot.repository.F_RoleRepository;
 import com.example.k5_iot_springboot.repository.F_UserRepository;
 import com.example.k5_iot_springboot.service.F_AuthService;
 import io.jsonwebtoken.Claims;
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 public class F_AuthServiceImpl implements F_AuthService {
     private final F_UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final F_RoleRepository roleRepository;
 //    @Bean 메서드로 BCryptPasswordEncoder 객체를 리턴하면
 //      , 스프링 컨테이너에 등록될 때 PasswordEncoder 타입으로 인식 (주입 시 해당 타입으로 정의 권장)
     private final AuthenticationManager authenticationManager;
@@ -58,8 +62,15 @@ public class F_AuthServiceImpl implements F_AuthService {
 //                .gender(req.gender()) - 선택사항(null 허용)
                 .build();
 
+
+//    기본 권한 부여
+//    cf) getReferenceById: 특정 ID를 가진 엔티티의 프록시 객체를 즉시 반환
+    F_Role defaultRole = roleRepository.getReferenceById(RoleType.USER);
+    user.grantRole(defaultRole); // 변경 감지로 user_roles가 insert 됨 (cascade = ALL)
         userRepository.save(user);
     }
+
+
 
     @Override // 읽기 전용
     public ResponseDto<SignInResponse> signIn(SignInRequest req) {
