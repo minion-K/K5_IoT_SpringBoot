@@ -99,7 +99,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({EntityNotFoundException.class})
     public ResponseEntity<ResponseDto<Object>> handleNotFound(EntityNotFoundException e) {
         log.warn("Not Found: {}", e.getMessage());
-        return fail(ErrorCode.FORBIDDEN, null, null);
+        return fail(ErrorCode.NOT_FOUND, null, null);
     }
 
 //    === 409 Conflict: 무결성 위반(중복/제약조건)

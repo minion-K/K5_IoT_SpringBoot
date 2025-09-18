@@ -1,6 +1,8 @@
 package com.example.k5_iot_springboot.repository;
 
 import com.example.k5_iot_springboot.entity.F_User;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,20 +22,22 @@ public interface F_UserRepository extends JpaRepository<F_User, Long> {
         SELECT u
         FROM F_User u
             LEFT JOIN FETCH u.userRoles
-        WHERE u.loginId = :loginId    
+        WHERE u.loginId = :loginId
     """)
     Optional<F_User> findWithRolesByLoginId(@Param("loginId") String loginId);
 
 //    해결 방법 2) JPA의 @EntityGraph를 사용하여 fetch join을 자동으로 적용 방식
 //    @EntityGraph: DATA JPA에서 fetch 조인을 어노테이션으로 대신하는 기능
-    @EntityGraph(attributePaths = "roles")
+    @EntityGraph(attributePaths = "userRoles")
     Optional<F_User> findByLoginId(String loginId);
 
-    @EntityGraph(attributePaths = "roles")
+    @EntityGraph(attributePaths = "userRoles")
     Optional<F_User> findWithRolesById(Long id);
 
 
     boolean existsByLoginId(String loginId);
     boolean existsByEmail(String email);
     boolean existsByNickname(String nickname);
+
+    Optional<F_User> findByEmail(@NotBlank @Email String email);
 }

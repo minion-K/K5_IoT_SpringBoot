@@ -175,9 +175,13 @@ INSERT INTO user_roles (user_id, role_name) VALUES
 	(2, 'USER'),
     (2, 'MANAGER'),
     (3, 'MANAGER'),
-    (3, 'ADMIN');
+    (3, 'ADMIN')
+	ON DUPLICATE KEY UPDATE role_name = VALUES(role_name);
+
+
 select * from roles;
 select * from user_roles;
+select * from users;
   
 # 샘플데이터 #
 INSERT INTO user_roles (user_id, role)

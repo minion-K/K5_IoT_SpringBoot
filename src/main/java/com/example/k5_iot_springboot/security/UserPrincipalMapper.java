@@ -2,7 +2,6 @@ package com.example.k5_iot_springboot.security;
 
 import com.example.k5_iot_springboot.entity.F_User;
 import org.springframework.lang.NonNull;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 

@@ -4,6 +4,7 @@ import com.example.k5_iot_springboot.common.enums.RoleType;
 import com.example.k5_iot_springboot.dto.F_Auth.request.SignInRequest;
 import com.example.k5_iot_springboot.dto.F_Auth.request.SignUpRequest;
 import com.example.k5_iot_springboot.dto.F_Auth.response.SignInResponse;
+import com.example.k5_iot_springboot.dto.I_Mail.MailRequest;
 import com.example.k5_iot_springboot.dto.ResponseDto;
 import com.example.k5_iot_springboot.entity.F_Role;
 import com.example.k5_iot_springboot.entity.F_User;
@@ -12,11 +13,13 @@ import com.example.k5_iot_springboot.repository.F_RoleRepository;
 import com.example.k5_iot_springboot.repository.F_UserRepository;
 import com.example.k5_iot_springboot.service.F_AuthService;
 import io.jsonwebtoken.Claims;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,8 +73,6 @@ public class F_AuthServiceImpl implements F_AuthService {
         userRepository.save(user);
     }
 
-
-
     @Override // 읽기 전용
     public ResponseDto<SignInResponse> signIn(SignInRequest req) {
 
@@ -108,5 +109,21 @@ public class F_AuthServiceImpl implements F_AuthService {
         );
 
         return ResponseDto.setSuccess("로그인 성공", response);
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(MailRequest.@Valid PasswordReset req) {
+        if(!req.newPassword().equals(req.confirmPassword()))
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+
+        F_User user = userRepository.findByEmail(req.email())
+                .orElseThrow(() -> new IllegalArgumentException("가입된 이메일이 아닙니다."));
+
+        String encoded = passwordEncoder.encode(req.newPassword());
+
+        user.changePassword(encoded);
+
+        userRepository.save(user);
     }
 }
