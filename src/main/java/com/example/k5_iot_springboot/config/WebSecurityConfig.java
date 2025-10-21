@@ -156,6 +156,7 @@ public class WebSecurityConfig {
 //                            === URL 레벨에서 1차 차단(+ 컨트롤러 메서드에서 @PreAuthorize로 2차 방어) ===
 //                            인증/회원가입 등 공개 엔드포인트 - 토큰이 필요없는 기능
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("api/v1/notices/**").permitAll()
 
 //                            마이페이지(내 정보) - 인증 필요 (모든 역할 가능)
                         .requestMatchers("/api/v1/users/me/**").authenticated()

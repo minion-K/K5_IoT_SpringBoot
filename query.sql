@@ -398,5 +398,14 @@ SELECT * FROM `order_logs`;
 select p.id, p.name, s.quantity
 from products p join stocks s on p.id = s.product_id;
 
+CREATE TABLE notice (
+	id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    author VARCHAR(100) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+select * from notice;
 
 USE k5_iot_springboot;

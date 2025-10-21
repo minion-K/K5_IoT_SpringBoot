@@ -19,7 +19,6 @@ import java.sql.SQLOutput;
 @RequiredArgsConstructor
 public class I_MailServiceImpl implements I_MailService {
     private final JavaMailSender javaMailSender;
-    private final MessageSourceAware messageSourceAware;
     private final JwtProvider jwtProvider;
 
     @Value("${spring.mail.username}")
