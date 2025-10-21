@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = {"http://localhost:5500", "http://127.0.0.1:5500"})
 @RestController
 @RequestMapping("api/v1/notices")
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class NoticeController {
     }
 
     @DeleteMapping("/{id}")
-    public Void delete(@PathVariable Long id) {
+    public void delete(@PathVariable Long id) {
         noticeService.delete(id);
     }
 }
