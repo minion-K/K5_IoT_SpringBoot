@@ -88,7 +88,8 @@ public class F_AuthServiceImpl implements F_AuthService {
       - Refresh Token DB + 쿠키 저장
 
     */
-    @Override // 읽기 전용
+    @Override
+    @Transactional// 읽기 전용
     public ResponseDto<SignInResponse> signIn(SignInRequest req, HttpServletResponse response) {
 
 //        스프링 시큐리티 표준 인증 흐름(UserDetailsService + PasswordEncoder)
@@ -115,6 +116,7 @@ public class F_AuthServiceImpl implements F_AuthService {
 //        +) Refresh Token 저장(기존의 토큰 삭제 후 신규 저장)
         long expiry = System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000L;
         refreshTokenRepository.deleteByUsername(req.loginId());
+        refreshTokenRepository.flush();
         refreshTokenRepository.save(
                 RefreshToken.builder()
                         .username(req.loginId())
@@ -175,6 +177,7 @@ public class F_AuthServiceImpl implements F_AuthService {
     }
 
     @Override
+    @Transactional
     public void deleteRefreshToken(UserPrincipal userPrincipal) {
         refreshTokenRepository.deleteByUsername(userPrincipal.getUsername());
     }
