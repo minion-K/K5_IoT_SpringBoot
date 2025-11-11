@@ -21,6 +21,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -175,7 +176,7 @@ public class F_AuthServiceImpl implements F_AuthService {
 
     @Override
     public void deleteRefreshToken(UserPrincipal userPrincipal) {
-        
+        refreshTokenRepository.deleteByUsername(userPrincipal.getUsername());
     }
 
     @Override
