@@ -7,6 +7,7 @@ import com.example.k5_iot_springboot.dto.I_Mail.MailRequest;
 import com.example.k5_iot_springboot.dto.ResponseDto;
 import com.example.k5_iot_springboot.service.F_AuthService;
 import com.example.k5_iot_springboot.service.I_MailService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jdk.swing.interop.SwingInterOpUtils;
 import lombok.RequiredArgsConstructor;
@@ -27,12 +28,34 @@ public class F_AuthController {
         return ResponseEntity.ok(ResponseDto.setSuccess("회원가입이 완료 되었습니다.", null));
     }
 
-    /** 로그인 */
+    /** 로그인: AccessToken + refreshToken */
     @PostMapping("/sign-in")
-    public ResponseEntity<ResponseDto<SignInResponse>> signIn(@Valid @RequestBody SignInRequest req) {
-        ResponseDto<SignInResponse> response = authService.signIn(req);
-        return ResponseEntity.ok().body(response);
+    public ResponseEntity<ResponseDto<SignInResponse>> signIn(
+            @Valid @RequestBody SignInRequest req,
+            HttpServletResponse response
+    ) {
+        ResponseDto<SignInResponse> result = authService.signIn(req, response);
+        return ResponseEntity.ok().body(result);
     }
+
+    /** 로그아웃 (RefreshToken 쿠키 삭제 */
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        // 쿠키 즉시 만료
+        // jakarta.servlet.http.cookie
+        // : 웹 서버가 웹 브라우저에 저장하도록 보내는 정보 조각
+        // - 첫 번째 인자(키), 두 번째 인자(값)를 통해 정보를 전달
+        // - 자바 서블릿 환경에서 쿠키를 다루기 위한 클래스
+        var cookie = new jakarta.servlet.http.Cookie("refreshToken", null);
+        cookie.setHttpOnly(true); // 쿠키 설정 보안 강화 - 쿠키의 JS 접근 여부 설정 (true: 접근 불가)
+//        cookie.setSecure(true); 쿠키 설정 보안 강화 - HTTPS 통신 환경에서만 서버로 전송
+        cookie.setPath("/"); // 쿠키의 적용 범위를 특정 경로로 제한
+        cookie.setMaxAge(0); // 쿠키 유효 시간 설정 - 0: 즉시 삭제
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(ResponseDto.setSuccess("로그아웃 성공", null));
+    }
+
     /** 이메일 전송 */
     @PostMapping("/send-email")
     public ResponseEntity<ResponseDto<Void>> sendEmail(@Valid @RequestBody MailRequest.SendMail req) {

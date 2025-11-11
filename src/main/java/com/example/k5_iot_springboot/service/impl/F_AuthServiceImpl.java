@@ -13,6 +13,7 @@ import com.example.k5_iot_springboot.repository.F_RoleRepository;
 import com.example.k5_iot_springboot.repository.F_UserRepository;
 import com.example.k5_iot_springboot.service.F_AuthService;
 import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -73,8 +74,14 @@ public class F_AuthServiceImpl implements F_AuthService {
         userRepository.save(user);
     }
 
+    /*
+      로그인
+      - 인증 성공 시 Access/Refresh Token 발급
+      - Refresh Token DB + 쿠키 저장
+
+    */
     @Override // 읽기 전용
-    public ResponseDto<SignInResponse> signIn(SignInRequest req) {
+    public ResponseDto<SignInResponse> signIn(SignInRequest req, HttpServletResponse response) {
 
 //        스프링 시큐리티 표준 인증 흐름(UserDetailsService + PasswordEncoder)
         Authentication auth = authenticationManager.authenticate(
@@ -92,7 +99,8 @@ public class F_AuthServiceImpl implements F_AuthService {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
         
-//        3) JWT 발급 (username=loginId, roles 포함)
+//        3) Access Token 발급 (username=loginId, roles 포함)
+//           + Refresh Token 생성
         String accessToken = jwtProvider.generateJwtToken(req.loginId(), roles);
 
 //        4) 만료 시각 추출하여 응답에 포함
@@ -100,7 +108,7 @@ public class F_AuthServiceImpl implements F_AuthService {
         long expiresAt = claims.getExpiration().getTime();
 
 //        5) 응답 DTO 구성
-        SignInResponse response = new SignInResponse(
+        SignInResponse result = new SignInResponse(
                 "Bearer",
                 accessToken,
                 expiresAt,
@@ -108,7 +116,7 @@ public class F_AuthServiceImpl implements F_AuthService {
                 roles
         );
 
-        return ResponseDto.setSuccess("로그인 성공", response);
+        return ResponseDto.setSuccess("로그인 성공", result);
     }
 
     @Override
