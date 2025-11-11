@@ -8,11 +8,16 @@ import com.example.k5_iot_springboot.dto.I_Mail.MailRequest;
 import com.example.k5_iot_springboot.dto.ResponseDto;
 import com.example.k5_iot_springboot.entity.F_Role;
 import com.example.k5_iot_springboot.entity.F_User;
+import com.example.k5_iot_springboot.entity.RefreshToken;
 import com.example.k5_iot_springboot.provider.JwtProvider;
 import com.example.k5_iot_springboot.repository.F_RoleRepository;
 import com.example.k5_iot_springboot.repository.F_UserRepository;
+import com.example.k5_iot_springboot.repository.RefreshTokenRepository;
+import com.example.k5_iot_springboot.security.UserPrincipal;
 import com.example.k5_iot_springboot.service.F_AuthService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +30,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,6 +41,7 @@ public class F_AuthServiceImpl implements F_AuthService {
     private final F_UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final F_RoleRepository roleRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 //    @Bean 메서드로 BCryptPasswordEncoder 객체를 리턴하면
 //      , 스프링 컨테이너에 등록될 때 PasswordEncoder 타입으로 인식 (주입 시 해당 타입으로 정의 권장)
     private final AuthenticationManager authenticationManager;
@@ -102,6 +109,26 @@ public class F_AuthServiceImpl implements F_AuthService {
 //        3) Access Token 발급 (username=loginId, roles 포함)
 //           + Refresh Token 생성
         String accessToken = jwtProvider.generateJwtToken(req.loginId(), roles);
+        String refreshToken = jwtProvider.generateRefreshToken(req.loginId(), roles);
+
+//        +) Refresh Token 저장(기존의 토큰 삭제 후 신규 저장)
+        long expiry = System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000L;
+        refreshTokenRepository.deleteByUsername(req.loginId());
+        refreshTokenRepository.save(
+                RefreshToken.builder()
+                        .username(req.loginId())
+                        .token(refreshToken)
+                        .expiry(expiry)
+                        .build()
+        );
+
+        // +) Refresh Token
+        Cookie cookie = new Cookie("refreshToken", refreshToken);
+        cookie.setHttpOnly(true);
+//        cookie.setSecure();
+        cookie.setPath("/");
+        cookie.setMaxAge((int)7 * 24 * 60 * 60);
+        response.addCookie(cookie);
 
 //        4) 만료 시각 추출하여 응답에 포함
         Claims claims = jwtProvider.getClaims(accessToken);
@@ -117,6 +144,38 @@ public class F_AuthServiceImpl implements F_AuthService {
         );
 
         return ResponseDto.setSuccess("로그인 성공", result);
+    }
+
+    @Override
+    public String refreshAccessToken(String refreshToken) {
+        try {
+            // 1) JWT 형식 및 화면 유효성 검즘
+            if(!jwtProvider.isValidToken(refreshToken)) {
+                throw new IllegalArgumentException("유효하지 않거나 만료된 Refresh Token 입니다.");
+            }
+            // 2) Refresh Token의 subject(=username) 추출
+            String username = jwtProvider.getUsernameFromJwt(refreshToken);
+
+            // 3) DB에 저장된 Refresh Token과 일치하는지 확인
+            Optional<RefreshToken> savedToken = refreshTokenRepository.findByUsername(username);
+            if(savedToken.isEmpty() || !savedToken.get().getToken().equals(refreshToken)) {
+                throw new IllegalArgumentException("Refresh Token이 서버에 등록된 Token과 일치하지 않습니다.");
+            }
+
+            // 4) 새 AccessToken 발급
+            Set<String> roles = jwtProvider.getRolesFromJwt(refreshToken);
+            String newAccessToken = jwtProvider.generateJwtToken(username, roles);
+
+            return newAccessToken;
+        } catch(ExpiredJwtException e) {
+            // Refresh Token 만료
+            throw new IllegalArgumentException("Refresh Token이 만료되었습니다. 다시 로그인 해주세요.");
+        }
+    }
+
+    @Override
+    public void deleteRefreshToken(UserPrincipal userPrincipal) {
+        
     }
 
     @Override

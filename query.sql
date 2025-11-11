@@ -409,3 +409,16 @@ CREATE TABLE notice (
 select * from notice;
 
 USE k5_iot_springboot;
+
+CREATE TABLE refresh_tokens (
+	id BiGINT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) NOT NULL,
+    token VARCHAR(512) NOT NULL,
+    expiry BIGINT NOT NULL,
+    
+    UNIQUE KEY `uk_refresh_username` (username),
+    UNIQUE KEY `uk_refresh_token` (token)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+  COMMENT = 'JWT Refresh Token 저장 테이블';
