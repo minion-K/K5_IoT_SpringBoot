@@ -38,6 +38,9 @@ public class Truck {
     @Column(length = 255)
     private String description;
 
+    // mappedBy 연관관계 주인이 아님(반대편 엔티티의 연관관계 필드이름)
+    // - 주인) FK를 직접 관리하는 쪽: @JoinColumn을 가진 쪽
+    // - 비주인) mappedBy를 가진 쪽: DB에는 컬럼이 없음 (읽기 전용)
     @OneToMany(mappedBy = "truck", cascade= CascadeType.ALL, orphanRemoval = true)
     private List<Reservation> reservations = new ArrayList<>();
 
