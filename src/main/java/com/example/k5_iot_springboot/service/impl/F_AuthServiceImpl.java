@@ -17,16 +17,14 @@ import com.example.k5_iot_springboot.security.UserPrincipal;
 import com.example.k5_iot_springboot.service.F_AuthService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -126,12 +124,15 @@ public class F_AuthServiceImpl implements F_AuthService {
         );
 
         // +) Refresh Token
-        Cookie cookie = new Cookie("refreshToken", refreshToken);
-        cookie.setHttpOnly(true);
-//        cookie.setSecure();
-        cookie.setPath("/");
-        cookie.setMaxAge((int)7 * 24 * 60 * 60);
-        response.addCookie(cookie);
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(false)          // 로컬 HTTP
+                .path("/")
+                .maxAge(7 * 24 * 60 * 60)
+                .sameSite("Lax")        // 브라우저 허용
+                .build();
+        response.setHeader("Set-Cookie", cookie.toString());
+
 
 //        4) 만료 시각 추출하여 응답에 포함
         Claims claims = jwtProvider.getClaims(accessToken);

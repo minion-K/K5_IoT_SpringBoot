@@ -80,7 +80,7 @@ public class F_AuthController {
     }
 
     /** Refresh Token 검증 및 Access 토큰 재발급 */
-    @PostMapping("refresh-token")
+    @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
         try {
             // 1) 클라이언트 요청 쿠키에서 RefreshToken 추출
